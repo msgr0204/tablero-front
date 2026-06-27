@@ -1,0 +1,60 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+  Tema por defecto del tablero, expresado en variables CSS (RGB "r g b").
+  Cada empresa (tenant) podrá sobrescribir estas variables en runtime vía
+  BrandingContext sin que ningún componente cambie: todos usan las clases
+  Tailwind primero/segundo/tercero/cuarto/quinto, que leen de aquí.
+*/
+:root {
+  color-scheme: dark;
+  --color-primero: 15 23 42;
+  --color-primero-claro: 30 41 59;
+  --color-primero-fuerte: 16 26 46;
+  --color-primero-oscuro: 8 13 23;
+
+  --color-segundo: 87 240 254;
+  --color-segundo-claro: 87 241 255;
+  --color-segundo-oscuro: 69 190 201;
+
+  --color-tercero: 56 189 248;
+  --color-tercero-claro: 58 194 255;
+  --color-tercero-oscuro: 45 152 199;
+
+  --color-cuarto: 248 250 252;
+  --color-cuarto-claro: 255 255 255;
+  --color-cuarto-oscuro: 144 158 178;
+
+  --color-quinto: 179 62 63;
+  --color-quinto-claro: 255 255 255;
+  --color-quinto-oscuro: 144 158 178;
+}
+
+/*
+  Evita las franjas blancas del navegador al hacer overscroll/rubber-band
+  en mobile (iOS/Android): html y body deben tener el mismo fondo que la
+  app, no quedar transparentes mostrando el blanco por defecto del navegador.
+*/
+html, body {
+  background-color: rgb(var(--color-primero-oscuro));
+}
+
+#root {
+  min-height: 100dvh;
+}
+
+/*
+  iOS Safari hace zoom automático al enfocar un input/textarea/select cuyo
+  font-size calculado sea menor a 16px. Como el proyecto usa em para todo
+  (varios campos quedan en ~13-15px), forzamos 16px reales solo en mobile,
+  sin tocar el tamaño de fuente en desktop/tablet.
+*/
+@media (max-width: 47.99em) {
+  input,
+  textarea,
+  select {
+    font-size: 16px !important;
+  }
+}
