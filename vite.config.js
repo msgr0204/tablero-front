@@ -9,7 +9,7 @@ import autoprefixer from 'autoprefixer';
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
-  base: '', // Cambia esto si tu proyecto no está en la raíz
+  base: '/', // Mantiene los assets absolutos al recargar rutas de React Router.
   resolve: {
     alias: {
       '@assets': '/src/assets', // Alias para acceder a recursos de manera más sencilla
@@ -25,4 +25,3 @@ export default defineConfig({
     port: 5200, // (Modificar) Puerto
   },
 });
-
