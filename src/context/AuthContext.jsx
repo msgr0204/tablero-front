@@ -8,7 +8,7 @@ function AuthProvider({ children }) {
   const [usuario, setUsuario] = useState(null);
   const [tenant, setTenant] = useState(null);
   const [loading, setLoading] = useState(true);
-
+//auth con celular proximamente
   const fetchPerfil = useCallback(async () => {
     const token = localStorage.getItem('token');
     if (!token) {
