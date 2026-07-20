@@ -10,7 +10,7 @@ import useIsTouchDevice from '../../../hooks/useIsTouchDevice';
 
 const DEFAULT_COLOR = '#38BDF8';
 
-function EstadoPrioridadItem({ item, isEstado, onUpdate, onRemove }) {
+function EstadoPrioridadItem({ item, isEstado, onUpdate, onRemove, nombreEntidad }) {
   const isTouch = useIsTouchDevice();
   const [editing, setEditing] = useState(false);
   const [label, setLabel] = useState(item.label);
@@ -200,7 +200,7 @@ function EstadoPrioridadItem({ item, isEstado, onUpdate, onRemove }) {
       <ConfirmDeleteModal
         isOpen={confirmingDelete}
         confirming={removing}
-        label={`${isEstado ? 'el estado' : 'la prioridad'} "${item.label}"`}
+        label={`${nombreEntidad} "${item.label}"`}
         onCancel={() => setConfirmingDelete(false)}
         onConfirm={handleConfirmRemove}
       />

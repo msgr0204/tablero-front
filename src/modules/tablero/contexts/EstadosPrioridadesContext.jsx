@@ -6,6 +6,7 @@ const EstadosPrioridadesContext = createContext(null);
 function EstadosPrioridadesProvider({ children }) {
   const [estados, setEstados] = useState([]);
   const [prioridades, setPrioridades] = useState([]);
+  const [tipos, setTipos] = useState([]);
   const [loading, setLoading] = useState(false);
   const [mutating, setMutating] = useState(false);
   const [error, setError] = useState(null);
@@ -14,12 +15,14 @@ function EstadosPrioridadesProvider({ children }) {
     setLoading(true);
     setError(null);
     try {
-      const [estadosData, prioridadesData] = await Promise.all([
+      const [estadosData, prioridadesData, tiposData] = await Promise.all([
         estadoPrioridadService.getEstados(),
         estadoPrioridadService.getPrioridades(),
+        estadoPrioridadService.getTipos(),
       ]);
       setEstados(estadosData);
       setPrioridades(prioridadesData);
+      setTipos(tiposData);
     } catch (err) {
       setError(err.response?.data?.message ?? err.message);
     } finally {
@@ -143,6 +146,62 @@ function EstadosPrioridadesProvider({ children }) {
     }
   };
 
+  const createTipo = async (payload) => {
+    setMutating(true);
+    setError(null);
+    try {
+      const nuevo = await estadoPrioridadService.createTipo(payload);
+      setTipos((prev) => [...prev, nuevo]);
+      return nuevo;
+    } catch (err) {
+      setError(err.response?.data?.message ?? err.message);
+      throw err;
+    } finally {
+      setMutating(false);
+    }
+  };
+
+  const updateTipo = async (id, payload) => {
+    setMutating(true);
+    setError(null);
+    try {
+      const actualizado = await estadoPrioridadService.updateTipo(id, payload);
+      setTipos((prev) => prev.map((t) => (t.id === id ? actualizado : t)));
+      return actualizado;
+    } catch (err) {
+      setError(err.response?.data?.message ?? err.message);
+      throw err;
+    } finally {
+      setMutating(false);
+    }
+  };
+
+  const removeTipo = async (id) => {
+    setMutating(true);
+    setError(null);
+    try {
+      await estadoPrioridadService.removeTipo(id);
+      setTipos((prev) => prev.filter((t) => t.id !== id));
+    } catch (err) {
+      setError(err.response?.data?.message ?? err.message);
+      throw err;
+    } finally {
+      setMutating(false);
+    }
+  };
+
+  const reorderTipos = async (orderedIds) => {
+    const previous = tipos;
+    setTipos((prev) => orderedIds.map((id) => prev.find((t) => t.id === id)).filter(Boolean));
+    try {
+      await estadoPrioridadService.reorderTipos(orderedIds);
+    } catch (err) {
+      setTipos(previous);
+      setError(err.response?.data?.message ?? err.message);
+      throw err;
+    }
+  };
+
   const getEstado = (id) => {
     if (!id) return null;
     return estados.find((e) => e.id === id) ?? null;
@@ -151,16 +210,22 @@ function EstadosPrioridadesProvider({ children }) {
     if (!id) return null;
     return prioridades.find((p) => p.id === id) ?? null;
   };
+  const getTipo = (id) => {
+    if (!id) return null;
+    return tipos.find((t) => t.id === id) ?? null;
+  };
   const esEstadoFinal = (id) => getEstado(id)?.es_estado_final ?? false;
 
   return (
     <EstadosPrioridadesContext.Provider value={{
-      estados, prioridades, loading, mutating, error, fetchAll,
+      estados, prioridades, tipos, loading, mutating, error, fetchAll,
       createEstado, updateEstado, removeEstado, reorderEstados,
       createPrioridad, updatePrioridad, removePrioridad, reorderPrioridades,
-      getEstado, getPrioridad, esEstadoFinal,
+      createTipo, updateTipo, removeTipo, reorderTipos,
+      getEstado, getPrioridad, getTipo, esEstadoFinal,
       estadoDefault: estados[0]?.id ?? null,
       prioridadDefault: prioridades[0]?.id ?? null,
+      tipoDefault: tipos[0]?.id ?? null,
     }}>
       {children}
     </EstadosPrioridadesContext.Provider>

@@ -14,6 +14,7 @@ function AddRequirementInline({ onAdd, draftKey = 'req_inline' }) {
   const [diasMaximos, setDiasMaximos] = useState('');
   const [estado, setEstado] = useState('');
   const [prioridad, setPrioridad] = useState('');
+  const [tipo, setTipo] = useState('');
 
   const handleAdd = async () => {
     if (!texto.trim()) { setError(true); return; }
@@ -26,12 +27,14 @@ function AddRequirementInline({ onAdd, draftKey = 'req_inline' }) {
         dias_maximos: diasMaximos !== '' ? parseInt(diasMaximos, 10) : null,
         estado: estado || null,
         prioridad: prioridad || null,
+        tipo: tipo || null,
       });
       clearDraft();
       setFecha('');
       setDiasMaximos('');
       setEstado('');
       setPrioridad('');
+      setTipo('');
       setShowMore(false);
     } finally {
       setLoading(false);
@@ -81,7 +84,13 @@ function AddRequirementInline({ onAdd, draftKey = 'req_inline' }) {
       {showMore && (
         <div className="flex flex-col gap-[0.6em]">
           <DeliveryFields fecha={fecha} onFechaChange={setFecha} diasMaximos={diasMaximos} onDiasMaximosChange={setDiasMaximos} />
-          <StatusFields estado={estado} onEstadoChange={setEstado} prioridad={prioridad} onPrioridadChange={setPrioridad} size="sm" />
+          <StatusFields
+            estado={estado} onEstadoChange={setEstado}
+            prioridad={prioridad} onPrioridadChange={setPrioridad}
+            tipo={tipo} onTipoChange={setTipo}
+            conTipo
+            size="sm"
+          />
         </div>
       )}
       {error && <p className="text-[0.8em] text-quinto-claro font-roboto">Escribe un requerimiento.</p>}

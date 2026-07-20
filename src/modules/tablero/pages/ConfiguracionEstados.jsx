@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowLeft, faListCheck, faFlag } from '@fortawesome/free-solid-svg-icons';
+import { faArrowLeft, faListCheck, faFlag, faLayerGroup } from '@fortawesome/free-solid-svg-icons';
 import { DndContext, closestCenter } from '@dnd-kit/core';
 import { SortableContext, arrayMove, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import AppHeader from '../../../components/AppHeader';
@@ -14,9 +14,10 @@ function ConfiguracionEstados() {
   const navigate = useNavigate();
   const { branding } = useBranding();
   const {
-    estados, prioridades, loading,
+    estados, prioridades, tipos, loading,
     createEstado, updateEstado, removeEstado, reorderEstados,
     createPrioridad, updatePrioridad, removePrioridad, reorderPrioridades,
+    createTipo, updateTipo, removeTipo, reorderTipos,
   } = useEstadosPrioridades();
   const sensors = useDragSensors();
 
@@ -32,6 +33,13 @@ function ConfiguracionEstados() {
     const oldIndex = prioridades.findIndex((p) => p.id === active.id);
     const newIndex = prioridades.findIndex((p) => p.id === over.id);
     reorderPrioridades(arrayMove(prioridades, oldIndex, newIndex).map((p) => p.id));
+  };
+
+  const handleDragEndTipos = ({ active, over }) => {
+    if (!over || active.id === over.id) return;
+    const oldIndex = tipos.findIndex((t) => t.id === active.id);
+    const newIndex = tipos.findIndex((t) => t.id === over.id);
+    reorderTipos(arrayMove(tipos, oldIndex, newIndex).map((t) => t.id));
   };
 
   return (
@@ -78,6 +86,7 @@ function ConfiguracionEstados() {
                         key={estado.id}
                         item={estado}
                         isEstado
+                        nombreEntidad="el estado"
                         onUpdate={updateEstado}
                         onRemove={removeEstado}
                       />
@@ -86,7 +95,7 @@ function ConfiguracionEstados() {
                 </SortableContext>
               </DndContext>
 
-              <CreateEstadoPrioridadForm isEstado onCreate={createEstado} />
+              <CreateEstadoPrioridadForm isEstado onCreate={createEstado} placeholder="Nuevo estado..." />
             </section>
 
             <section className="flex flex-col gap-[0.75em]">
@@ -104,6 +113,7 @@ function ConfiguracionEstados() {
                         key={prioridad.id}
                         item={prioridad}
                         isEstado={false}
+                        nombreEntidad="la prioridad"
                         onUpdate={updatePrioridad}
                         onRemove={removePrioridad}
                       />
@@ -112,7 +122,34 @@ function ConfiguracionEstados() {
                 </SortableContext>
               </DndContext>
 
-              <CreateEstadoPrioridadForm isEstado={false} onCreate={createPrioridad} />
+              <CreateEstadoPrioridadForm isEstado={false} onCreate={createPrioridad} placeholder="Nueva prioridad..." />
+            </section>
+
+            <section className="flex flex-col gap-[0.75em]">
+              <div className="flex items-center gap-[0.5em]">
+                <FontAwesomeIcon icon={faLayerGroup} className="text-segundo/60 text-[0.9em]" />
+                <h2 className="text-[0.85em] font-semibold font-poppins text-cuarto uppercase tracking-wider">Tipos</h2>
+                <span className="text-[0.75em] text-cuarto/30 font-roboto">({tipos.length})</span>
+              </div>
+
+              <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEndTipos}>
+                <SortableContext items={tipos.map((t) => t.id)} strategy={verticalListSortingStrategy}>
+                  <ul className="flex flex-col gap-[0.5em]">
+                    {tipos.map((tipo) => (
+                      <EstadoPrioridadItem
+                        key={tipo.id}
+                        item={tipo}
+                        isEstado={false}
+                        nombreEntidad="el tipo"
+                        onUpdate={updateTipo}
+                        onRemove={removeTipo}
+                      />
+                    ))}
+                  </ul>
+                </SortableContext>
+              </DndContext>
+
+              <CreateEstadoPrioridadForm isEstado={false} onCreate={createTipo} placeholder="Nuevo tipo..." />
             </section>
           </>
         )}

@@ -13,11 +13,12 @@ import { useEstadosPrioridades } from '../contexts/EstadosPrioridadesContext';
 
 function RequirementItem({ req, index, onUpdate, onRemove, onAddObs, onToggle, selected, onSelect }) {
   const isTouch = useIsTouchDevice();
-  const { getEstado, getPrioridad } = useEstadosPrioridades();
+  const { getEstado, getPrioridad, getTipo, esEstadoFinal } = useEstadosPrioridades();
   const [editing, setEditing] = useState(false);
   const [texto, setTexto] = useState(req.texto);
   const [estado, setEstado] = useState(req.estado ?? '');
   const [prioridad, setPrioridad] = useState(req.prioridad ?? '');
+  const [tipo, setTipo] = useState(req.tipo ?? '');
   const [fechaEntrega, setFechaEntrega] = useState(req.fecha_entrega ?? '');
   const [diasMaximos, setDiasMaximos] = useState(req.dias_maximos ?? '');
   const [saving, setSaving] = useState(false);
@@ -27,7 +28,8 @@ function RequirementItem({ req, index, onUpdate, onRemove, onAddObs, onToggle, s
   const isDirty =
     texto.trim() !== req.texto ||
     (estado || null) !== (req.estado ?? null) ||
-    (prioridad || null) !== (req.prioridad ?? null) ||
+    ((estado && esEstadoFinal(estado)) ? null : (prioridad || null)) !== (req.prioridad ?? null) ||
+    (tipo || null) !== (req.tipo ?? null) ||
     (fechaEntrega || null) !== (req.fecha_entrega ?? null) ||
     (diasMaximos !== '' ? parseInt(diasMaximos, 10) : null) !== (req.dias_maximos ?? null);
 
@@ -47,6 +49,7 @@ function RequirementItem({ req, index, onUpdate, onRemove, onAddObs, onToggle, s
     setTexto(req.texto);
     setEstado(req.estado ?? '');
     setPrioridad(req.prioridad ?? '');
+    setTipo(req.tipo ?? '');
     setFechaEntrega(req.fecha_entrega ?? '');
     setDiasMaximos(req.dias_maximos ?? '');
     setEditing(true);
@@ -63,7 +66,8 @@ function RequirementItem({ req, index, onUpdate, onRemove, onAddObs, onToggle, s
       await onUpdate(req.id, {
         texto: texto.trim(),
         estado: estado || null,
-        prioridad: prioridad || null,
+        prioridad: (estado && esEstadoFinal(estado)) ? null : (prioridad || null),
+        tipo: tipo || null,
         fecha_entrega: fechaEntrega || null,
         dias_maximos: diasMaximos !== '' ? parseInt(diasMaximos, 10) : null,
       });
@@ -120,6 +124,7 @@ function RequirementItem({ req, index, onUpdate, onRemove, onAddObs, onToggle, s
             <div className="flex items-center gap-[0.4em] flex-wrap mt-[0.3em]">
               <Badge config={getEstado(req.estado)} size="sm" />
               <Badge config={getPrioridad(req.prioridad)} size="sm" />
+              <Badge config={getTipo(req.tipo)} size="sm" />
             </div>
             <div className="flex items-center gap-[0.75em] flex-wrap mt-[0.2em]">
               {req.creado_por && (
@@ -186,7 +191,13 @@ function RequirementItem({ req, index, onUpdate, onRemove, onAddObs, onToggle, s
 
       {editing && (
         <div className="ml-[1.9em] flex flex-col gap-[0.6em]">
-          <StatusFields estado={estado} onEstadoChange={setEstado} prioridad={prioridad} onPrioridadChange={setPrioridad} size="sm" />
+          <StatusFields
+            estado={estado} onEstadoChange={setEstado}
+            prioridad={prioridad} onPrioridadChange={setPrioridad}
+            tipo={tipo} onTipoChange={setTipo}
+            conTipo
+            size="sm"
+          />
           <DeliveryFields fecha={fechaEntrega} onFechaChange={setFechaEntrega} diasMaximos={diasMaximos} onDiasMaximosChange={setDiasMaximos} />
         </div>
       )}

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowLeft, faCubes, faListCheck, faCommentDots, faPen, faMagnifyingGlass, faTag, faFlag } from '@fortawesome/free-solid-svg-icons';
+import { faArrowLeft, faCubes, faListCheck, faCommentDots, faPen, faMagnifyingGlass, faTag, faFlag, faLayerGroup } from '@fortawesome/free-solid-svg-icons';
 import { DndContext, closestCenter, DragOverlay } from '@dnd-kit/core';
 import { SortableContext, arrayMove, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import AppHeader from '../../../components/AppHeader';
@@ -26,7 +26,7 @@ function DetalleModulo() {
   const { categoriaId, moduloId } = useParams();
   const navigate = useNavigate();
   const { branding } = useBranding();
-  const { estados, prioridades, getEstado, getPrioridad } = useEstadosPrioridades();
+  const { estados, prioridades, tipos, getEstado, getPrioridad, getTipo } = useEstadosPrioridades();
   const sensors = useDragSensors();
   const {
     module, loading, fetchModule, updateDetail,
@@ -170,6 +170,13 @@ function DetalleModulo() {
                 placeholder="Prioridad"
                 options={[{ value: '', label: 'Todas las prioridades' }, ...prioridades.map((p) => ({ value: p.id, label: p.label }))]}
               />
+              <FilterDropdown
+                icon={faLayerGroup}
+                value={filters.tipo ?? ''}
+                onChange={(v) => setFilter('tipo', v)}
+                placeholder="Tipo"
+                options={[{ value: '', label: 'Todos los tipos' }, ...tipos.map((t) => ({ value: t.id, label: t.label }))]}
+              />
             </div>
 
             <div className="flex-1 max-h-[40em] overflow-y-auto px-[1.25em] sm:px-[1.5em] py-[1.25em] flex flex-col gap-[1.25em]">
@@ -285,6 +292,7 @@ function DetalleModulo() {
                       <div className="flex items-center gap-[0.4em] flex-wrap mt-[0.4em]">
                         <Badge config={getEstado(selectedReq.estado)} size="sm" />
                         <Badge config={getPrioridad(selectedReq.prioridad)} size="sm" />
+                        <Badge config={getTipo(selectedReq.tipo)} size="sm" />
                       </div>
                     </div>
                     <div className="h-px bg-cuarto/10" />

@@ -52,6 +52,30 @@ const estadoPrioridadService = {
     const { data } = await apiClient.post('/prioridades/reorder', { orderedIds });
     return data.map(normalize);
   },
+
+  getTipos: async () => {
+    const { data } = await apiClient.get('/tipos');
+    return data.map(normalize);
+  },
+
+  createTipo: async (payload) => {
+    const { data } = await apiClient.post('/tipos', payload);
+    return normalize(data);
+  },
+
+  updateTipo: async (id, payload) => {
+    const { data } = await apiClient.patch(`/tipos/${id}`, payload);
+    return normalize(data);
+  },
+
+  removeTipo: async (id) => {
+    await apiClient.delete(`/tipos/${id}`);
+  },
+
+  reorderTipos: async (orderedIds) => {
+    const { data } = await apiClient.post('/tipos/reorder', { orderedIds });
+    return data.map(normalize);
+  },
 };
 
 export default estadoPrioridadService;

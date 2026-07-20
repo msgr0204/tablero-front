@@ -4,7 +4,7 @@ import { faPlus } from '@fortawesome/free-solid-svg-icons';
 
 const DEFAULT_COLOR = '#38BDF8';
 
-function CreateEstadoPrioridadForm({ isEstado, onCreate }) {
+function CreateEstadoPrioridadForm({ isEstado, onCreate, placeholder }) {
   const [label, setLabel] = useState('');
   const [color, setColor] = useState(DEFAULT_COLOR);
   const [esEstadoFinal, setEsEstadoFinal] = useState(false);
@@ -37,7 +37,7 @@ function CreateEstadoPrioridadForm({ isEstado, onCreate }) {
           type="text"
           value={label}
           onChange={(e) => { setLabel(e.target.value); setError(''); }}
-          placeholder={isEstado ? 'Nuevo estado...' : 'Nueva prioridad...'}
+          placeholder={placeholder}
           className="h-[2.5em] px-[0.75em] rounded-[0.5em] text-[0.85em] font-roboto bg-primero-claro/60 text-cuarto placeholder:text-cuarto/30 border border-cuarto/10 hover:border-cuarto/20 focus:border-segundo/60 focus:bg-primero-claro focus:ring-1 focus:ring-segundo/40 outline-none flex-1 min-w-[10em]"
         />
         <input

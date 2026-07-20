@@ -6,7 +6,7 @@ import { useEstadosPrioridades } from '../contexts/EstadosPrioridadesContext';
 
 function CompletedRequirementItem({ req, index, onRemove, onToggle }) {
   const isTouch = useIsTouchDevice();
-  const { getEstado, getPrioridad } = useEstadosPrioridades();
+  const { getEstado, getPrioridad, getTipo } = useEstadosPrioridades();
 
   return (
     <li className="flex items-center gap-[0.6em] bg-primero/20 border border-cuarto/10 rounded-[0.6em] px-[0.85em] py-[0.7em] group/req opacity-60">
@@ -25,6 +25,7 @@ function CompletedRequirementItem({ req, index, onRemove, onToggle }) {
       </span>
       <Badge config={getEstado(req.estado)} size="sm" />
       <Badge config={getPrioridad(req.prioridad)} size="sm" />
+      <Badge config={getTipo(req.tipo)} size="sm" />
       <button
         onClick={() => onRemove(req.id)}
         aria-label="Eliminar"
