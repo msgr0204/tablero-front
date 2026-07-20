@@ -70,7 +70,7 @@ function DetalleModulo() {
   };
 
   const handleSelectReq = (reqId) => {
-    setSelectedReqId(reqId);
+    setSelectedReqId((prev) => (prev === reqId ? null : reqId));
     setActiveTab('detalle');
   };
 
