@@ -25,11 +25,12 @@ function RequirementItem({ req, index, onUpdate, onRemove, onAddObs, onToggle, s
   const [confirmingDiscard, setConfirmingDiscard] = useState(false);
   const inputRef = useRef(null);
 
+  const esFinal = estado && esEstadoFinal(estado);
   const isDirty =
     texto.trim() !== req.texto ||
     (estado || null) !== (req.estado ?? null) ||
-    ((estado && esEstadoFinal(estado)) ? null : (prioridad || null)) !== (req.prioridad ?? null) ||
-    (tipo || null) !== (req.tipo ?? null) ||
+    (esFinal ? null : (prioridad || null)) !== (req.prioridad ?? null) ||
+    (esFinal ? null : (tipo || null)) !== (req.tipo ?? null) ||
     (fechaEntrega || null) !== (req.fecha_entrega ?? null) ||
     (diasMaximos !== '' ? parseInt(diasMaximos, 10) : null) !== (req.dias_maximos ?? null);
 
@@ -66,8 +67,8 @@ function RequirementItem({ req, index, onUpdate, onRemove, onAddObs, onToggle, s
       await onUpdate(req.id, {
         texto: texto.trim(),
         estado: estado || null,
-        prioridad: (estado && esEstadoFinal(estado)) ? null : (prioridad || null),
-        tipo: tipo || null,
+        prioridad: esFinal ? null : (prioridad || null),
+        tipo: esFinal ? null : (tipo || null),
         fecha_entrega: fechaEntrega || null,
         dias_maximos: diasMaximos !== '' ? parseInt(diasMaximos, 10) : null,
       });

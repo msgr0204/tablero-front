@@ -42,13 +42,19 @@ function StatusFields({
       {conTipo && (
         <div className="flex flex-col gap-[0.3em]">
           <label className="text-[0.75em] text-cuarto/50 font-roboto">Tipo</label>
-          <Select
-            value={tipo ?? ''}
-            onChange={onTipoChange}
-            placeholder="Sin tipo"
-            size={size}
-            options={[{ value: '', label: 'Sin tipo' }, ...tipos.map((t) => ({ value: t.id, label: t.label }))]}
-          />
+          {isFinal ? (
+            <span className="w-full h-[2.5em] px-[0.75em] flex items-center rounded-[0.5em] text-[0.85em] text-cuarto/30 italic border border-transparent">
+              No aplica
+            </span>
+          ) : (
+            <Select
+              value={tipo ?? ''}
+              onChange={onTipoChange}
+              placeholder="Sin tipo"
+              size={size}
+              options={[{ value: '', label: 'Sin tipo' }, ...tipos.map((t) => ({ value: t.id, label: t.label }))]}
+            />
+          )}
         </div>
       )}
     </div>
