@@ -1,12 +1,16 @@
+import { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCubes, faPen, faListCheck, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { faCubes, faPen, faListCheck, faTrash, faCircleInfo } from '@fortawesome/free-solid-svg-icons';
 import Badge from '../../../components/Badge';
+import ModuleInfoModal from './ModuleInfoModal';
 import useIsTouchDevice from '../../../hooks/useIsTouchDevice';
 import { useEstadosPrioridades } from '../contexts/EstadosPrioridadesContext';
+import { formatearFecha } from '../../../lib/formatFecha';
 
 function ModuleCard({ module, onView, onEdit, onRemove, dragHandle }) {
   const { getEstado, getPrioridad } = useEstadosPrioridades();
   const isTouch = useIsTouchDevice();
+  const [infoOpen, setInfoOpen] = useState(false);
   const visibilityClass = isTouch ? 'opacity-100' : 'opacity-0 group-hover:opacity-100';
   const reqs = module.requerimientos ?? [];
 
@@ -30,6 +34,13 @@ function ModuleCard({ module, onView, onEdit, onRemove, dragHandle }) {
             <Badge config={getPrioridad(module.prioridad)} size="sm" />
           </div>
           <div className="flex items-center gap-[0.1em] flex-shrink-0">
+            <button
+              onClick={(e) => { e.stopPropagation(); setInfoOpen(true); }}
+              aria-label="Ver información del módulo"
+              className={`w-[1.75em] h-[1.75em] flex items-center justify-center rounded-[0.4em] ${visibilityClass} focus:opacity-100 text-cuarto/40 hover:text-segundo hover:bg-segundo/10 transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-segundo/50`}
+            >
+              <FontAwesomeIcon icon={faCircleInfo} className="text-[0.75em]" />
+            </button>
             <button
               onClick={(e) => { e.stopPropagation(); onEdit(module); }}
               aria-label="Editar módulo"
@@ -108,7 +119,7 @@ function ModuleCard({ module, onView, onEdit, onRemove, dragHandle }) {
             </span>
             {module.fecha_entrega ? (
               <span className="text-[0.75em] font-roboto font-semibold truncate text-segundo">
-                Entrega: {formatDate(module.fecha_entrega)}
+                Entrega: {formatearFecha(module.fecha_entrega)}
               </span>
             ) : (
               <span className="text-[0.75em] text-cuarto/20 font-roboto italic">Sin fecha de entrega</span>
@@ -122,13 +133,12 @@ function ModuleCard({ module, onView, onEdit, onRemove, dragHandle }) {
           </button>
         </div>
       </div>
+
+      <span onClick={(e) => e.stopPropagation()}>
+        <ModuleInfoModal isOpen={infoOpen} onClose={() => setInfoOpen(false)} module={module} />
+      </span>
     </div>
   );
-}
-
-function formatDate(fechaStr) {
-  if (!fechaStr) return '—';
-  return new Date(fechaStr + 'T00:00:00').toLocaleDateString('es-CO', { day: '2-digit', month: '2-digit', year: 'numeric' });
 }
 
 export default ModuleCard;

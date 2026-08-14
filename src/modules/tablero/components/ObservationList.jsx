@@ -3,6 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus, faTrash, faCommentDots } from '@fortawesome/free-solid-svg-icons';
 import useIsTouchDevice from '../../../hooks/useIsTouchDevice';
 import useDraft from '../../../hooks/useDraft';
+import { formatearFechaHora } from '../../../lib/formatFecha';
 
 function ObservationList({ observaciones = [], onAdd, onRemove, draftKey = 'obs_input', hideList = false, hideInput = false }) {
   const isTouch = useIsTouchDevice();
@@ -72,7 +73,7 @@ function ObservationList({ observaciones = [], onAdd, onRemove, draftKey = 'obs_
             <li key={obs.id} className="flex gap-[0.75em] bg-primero-claro/40 border border-cuarto/10 rounded-[0.6em] px-[0.85em] py-[0.7em] group">
               <div className="flex-1 min-w-0">
                 <p className="text-[0.85em] text-cuarto/80 font-roboto leading-snug">{obs.texto}</p>
-                <p className="text-[0.75em] text-cuarto/30 font-roboto mt-[0.3em]">{formatDate(obs.fecha)}</p>
+                <p className="text-[0.75em] text-cuarto/30 font-roboto mt-[0.3em]">{formatearFechaHora(obs.fecha)}</p>
               </div>
               <button
                 onClick={() => onRemove(obs.id)}
@@ -89,12 +90,5 @@ function ObservationList({ observaciones = [], onAdd, onRemove, draftKey = 'obs_
   );
 }
 
-function formatDate(iso) {
-  if (!iso) return '';
-  return new Date(iso).toLocaleDateString('es-CO', {
-    day: '2-digit', month: 'short', year: 'numeric',
-    hour: '2-digit', minute: '2-digit',
-  });
-}
 
 export default ObservationList;

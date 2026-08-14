@@ -7,6 +7,7 @@ import Select from '../../../components/Select';
 import ConfirmDiscardModal from '../../../components/ConfirmDiscardModal';
 import useIsTouchDevice from '../../../hooks/useIsTouchDevice';
 import { useEstadosPrioridades } from '../contexts/EstadosPrioridadesContext';
+import { formatearFecha, formatearFechaHora } from '../../../lib/formatFecha';
 
 function CategoryCard({ category, onUpdate, onRemove, dragHandle, autoEdit, onAutoEditDone }) {
   const navigate = useNavigate();
@@ -199,7 +200,7 @@ function ViewMode({ category, onEdit, onRemove, dragHandle, getEstado, getPriori
 
       <div className="mt-auto pt-[0.75em] border-t border-cuarto/10 flex flex-col gap-[0.4em]">
         <span className="text-[0.7em] text-cuarto/30 font-roboto">
-          Creado por {category.creado_por || '—'} el {formatDate(category.created_at)}
+          Creado por {category.creado_por || '—'} el {formatearFechaHora(category.created_at)}
         </span>
         <div className="flex items-center justify-between">
           <span className="text-[0.7em] text-cuarto/30 font-roboto uppercase tracking-wider">
@@ -357,7 +358,7 @@ function DeliveryRow({ fecha }) {
   return (
     <div className="flex items-baseline gap-[0.5em]">
       <span className="text-[0.75em] text-cuarto/40 font-roboto w-[5.5em] flex-shrink-0">Entrega:</span>
-      <span className="text-[0.75em] font-roboto font-semibold text-segundo">{formatDate(fecha)}</span>
+      <span className="text-[0.75em] font-roboto font-semibold text-segundo">{formatearFecha(fecha)}</span>
     </div>
   );
 }
@@ -376,11 +377,6 @@ function IdRow({ diasMaximos }) {
       )}
     </div>
   );
-}
-
-function formatDate(iso) {
-  if (!iso) return '—';
-  return new Date(iso).toLocaleDateString('es-CO', { day: '2-digit', month: '2-digit', year: 'numeric' });
 }
 
 export default CategoryCard;

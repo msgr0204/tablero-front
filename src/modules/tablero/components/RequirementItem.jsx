@@ -10,6 +10,7 @@ import ObservationList from './ObservationList';
 import ConfirmDiscardModal from '../../../components/ConfirmDiscardModal';
 import useIsTouchDevice from '../../../hooks/useIsTouchDevice';
 import { useEstadosPrioridades } from '../contexts/EstadosPrioridadesContext';
+import { formatearFecha, formatearFechaHora } from '../../../lib/formatFecha';
 
 function RequirementItem({ req, index, onUpdate, onRemove, onAddObs, onToggle, selected, onSelect }) {
   const isTouch = useIsTouchDevice();
@@ -131,9 +132,12 @@ function RequirementItem({ req, index, onUpdate, onRemove, onAddObs, onToggle, s
               {req.creado_por && (
                 <span className="text-[0.75em] text-segundo/40 font-roboto">Creado por: {req.creado_por}</span>
               )}
+              {req.created_at && (
+                <span className="text-[0.75em] text-cuarto/40 font-roboto">Creado: {formatearFechaHora(req.created_at)}</span>
+              )}
               {req.fecha_entrega && (
                 <span className="text-[0.75em] font-roboto font-medium text-segundo">
-                  Entrega: {formatDate(req.fecha_entrega)}
+                  Entrega: {formatearFecha(req.fecha_entrega)}
                 </span>
               )}
               {req.dias_maximos && (
@@ -221,11 +225,6 @@ function RequirementItem({ req, index, onUpdate, onRemove, onAddObs, onToggle, s
       />
     </li>
   );
-}
-
-function formatDate(fechaStr) {
-  if (!fechaStr) return '—';
-  return new Date(fechaStr + 'T00:00:00').toLocaleDateString('es-CO', { day: '2-digit', month: '2-digit', year: 'numeric' });
 }
 
 export default RequirementItem;
