@@ -1,9 +1,30 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 
-function useSearchSort(items, { searchKey = 'nombre' } = {}) {
+// El orden y los filtros se persisten en localStorage bajo persistKey para que
+// sobrevivan a la navegación (salir a un módulo y volver) y a la recarga. La
+// búsqueda de texto NO se persiste: una búsqueda vieja al volver confunde más
+// que ayuda. Sin persistKey el hook funciona igual pero sin recordar nada.
+function leerPersistido(persistKey) {
+  if (!persistKey) return null;
+  try {
+    const saved = localStorage.getItem(`filtro_${persistKey}`);
+    return saved !== null ? JSON.parse(saved) : null;
+  } catch {
+    return null;
+  }
+}
+
+function useSearchSort(items, { searchKey = 'nombre', persistKey } = {}) {
+  const persistido = leerPersistido(persistKey);
+
   const [query, setQuery] = useState('');
-  const [sort, setSort] = useState('custom');
-  const [filters, setFilters] = useState({});
+  const [sort, setSort] = useState(persistido?.sort ?? 'custom');
+  const [filters, setFilters] = useState(persistido?.filters ?? {});
+
+  useEffect(() => {
+    if (!persistKey) return;
+    localStorage.setItem(`filtro_${persistKey}`, JSON.stringify({ sort, filters }));
+  }, [persistKey, sort, filters]);
 
   const setFilter = (key, value) => {
     setFilters((prev) => ({ ...prev, [key]: value }));

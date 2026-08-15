@@ -4,12 +4,12 @@ import Badge from '../../../components/Badge';
 import useIsTouchDevice from '../../../hooks/useIsTouchDevice';
 import { useEstadosPrioridades } from '../contexts/EstadosPrioridadesContext';
 
-function CompletedRequirementItem({ req, index, onRemove, onToggle }) {
+function CompletedRequirementItem({ req, index, onRemove, onToggle, selected, onSelect }) {
   const isTouch = useIsTouchDevice();
   const { getEstado, getPrioridad, getTipo } = useEstadosPrioridades();
 
   return (
-    <li className="flex items-center gap-[0.6em] bg-primero/20 border border-cuarto/10 rounded-[0.6em] px-[0.85em] py-[0.7em] group/req opacity-60">
+    <li className={`flex items-center gap-[0.6em] border rounded-[0.6em] px-[0.85em] py-[0.7em] group/req transition-colors duration-200 ${selected ? 'bg-segundo/10 border-segundo/40' : 'bg-primero/20 border-cuarto/10 opacity-60'}`}>
       <button
         onClick={() => onToggle(req.id, false)}
         aria-label="Marcar como pendiente"
@@ -20,9 +20,13 @@ function CompletedRequirementItem({ req, index, onRemove, onToggle }) {
       <span className="text-[0.8em] text-segundo/40 font-poppins font-semibold w-[1.5em] flex-shrink-0 tabular-nums">
         {String(index + 1).padStart(2, '0')}
       </span>
-      <span className="flex-1 text-[0.9em] text-cuarto/40 font-roboto truncate line-through min-w-0">
+      <button
+        type="button"
+        onClick={() => onSelect(req.id)}
+        className="flex-1 text-[0.9em] text-cuarto/40 font-roboto truncate line-through min-w-0 text-left cursor-pointer"
+      >
         {req.texto}
-      </span>
+      </button>
       <Badge config={getEstado(req.estado)} size="sm" />
       <Badge config={getPrioridad(req.prioridad)} size="sm" />
       <Badge config={getTipo(req.tipo)} size="sm" />

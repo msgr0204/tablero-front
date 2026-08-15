@@ -146,6 +146,24 @@ function useModuleDetail(moduleId) {
     }
   };
 
+  const editModuleObservation = async (obsId, texto) => {
+    setMutating(true);
+    setError(null);
+    try {
+      const obs = await moduleService.editModuleObservation(moduleId, obsId, texto);
+      setModule((prev) => ({
+        ...prev,
+        observaciones: (prev.observaciones ?? []).map((o) => (o.id === obsId ? obs : o)),
+      }));
+      return obs;
+    } catch (err) {
+      setError(err.message);
+      throw err;
+    } finally {
+      setMutating(false);
+    }
+  };
+
   const addReqObservation = async (reqId, texto) => {
     setMutating(true);
     setError(null);
@@ -177,6 +195,28 @@ function useModuleDetail(moduleId) {
           r.id === reqId ? { ...r, observaciones: (r.observaciones ?? []).filter((o) => o.id !== obsId) } : r
         ),
       }));
+    } catch (err) {
+      setError(err.message);
+      throw err;
+    } finally {
+      setMutating(false);
+    }
+  };
+
+  const editReqObservation = async (reqId, obsId, texto) => {
+    setMutating(true);
+    setError(null);
+    try {
+      const obs = await moduleService.editReqObservation(moduleId, reqId, obsId, texto);
+      setModule((prev) => ({
+        ...prev,
+        requerimientos: prev.requerimientos.map((r) =>
+          r.id === reqId
+            ? { ...r, observaciones: (r.observaciones ?? []).map((o) => (o.id === obsId ? obs : o)) }
+            : r
+        ),
+      }));
+      return obs;
     } catch (err) {
       setError(err.message);
       throw err;
@@ -224,7 +264,8 @@ function useModuleDetail(moduleId) {
   return {
     module, loading, mutating, error, fetchModule, updateDetail,
     addRequirement, updateRequirement, removeRequirement, reorderRequirements, toggleCompletado,
-    addModuleObservation, removeModuleObservation, addReqObservation, removeReqObservation,
+    addModuleObservation, removeModuleObservation, editModuleObservation,
+    addReqObservation, removeReqObservation, editReqObservation,
     addAdjunto, removeAdjunto,
   };
 }

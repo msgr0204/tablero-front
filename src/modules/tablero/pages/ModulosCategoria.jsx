@@ -32,7 +32,7 @@ function ModulosCategoria() {
   const { category: categoria, fetchCategory } = useCategory(categoriaId);
   const { modules, loading, fetchModules, createModule, updateModule, removeModule, reorderModules } = useModules(categoriaId);
   const { isOpen: isDeleteOpen, confirming: deleting, requestRemove, cancelRemove, confirmRemove, pendingId: deletingId } = useConfirmDelete(removeModule);
-  const { result: filteredModules, query, setQuery, sort, setSort, filters, setFilter, clearFilters, hasActiveFilters } = useSearchSort(modules);
+  const { result: filteredModules, query, setQuery, sort, setSort, filters, setFilter, clearFilters, hasActiveFilters } = useSearchSort(modules, { persistKey: 'modulos' });
   const isReorderDisabled = query.trim() !== '' || sort !== 'custom' || hasActiveFilters;
   const sensors = useDragSensors();
 

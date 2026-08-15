@@ -61,10 +61,36 @@ function useNotificaciones() {
     }
   };
 
+  const marcarTodasLeidas = async () => {
+    try {
+      await notificacionService.marcarTodasLeidas();
+      setNotificaciones((prev) => prev.map((n) => ({ ...n, leida: true })));
+      setHistorial((prev) => prev.map((n) => ({ ...n, leida: true })));
+      setNoLeidas(0);
+    } catch (err) {
+      setError(err.response?.data?.message ?? err.message);
+      throw err;
+    }
+  };
+
+  const marcarVariasLeidas = async (ids) => {
+    try {
+      const total = await notificacionService.marcarVariasLeidas(ids);
+      const seleccion = new Set(ids);
+      setNotificaciones((prev) => prev.map((n) => (seleccion.has(n.id) ? { ...n, leida: true } : n)));
+      setHistorial((prev) => prev.map((n) => (seleccion.has(n.id) ? { ...n, leida: true } : n)));
+      setNoLeidas((prev) => Math.max(0, prev - total));
+    } catch (err) {
+      setError(err.response?.data?.message ?? err.message);
+      throw err;
+    }
+  };
+
   return {
     notificaciones, noLeidas, loading, error,
     historial, pagina, totalPaginas, loadingHistorial,
-    fetchNoLeidas, fetchNotificaciones, fetchHistorial, marcarLeida,
+    fetchNoLeidas, fetchNotificaciones, fetchHistorial,
+    marcarLeida, marcarTodasLeidas, marcarVariasLeidas,
   };
 }
 

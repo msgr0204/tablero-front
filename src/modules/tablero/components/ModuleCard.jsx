@@ -1,18 +1,32 @@
 import { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCubes, faPen, faListCheck, faTrash, faCircleInfo } from '@fortawesome/free-solid-svg-icons';
+import { faCubes, faPen, faListCheck, faTrash, faCircleInfo, faFlag } from '@fortawesome/free-solid-svg-icons';
 import Badge from '../../../components/Badge';
 import ModuleInfoModal from './ModuleInfoModal';
 import useIsTouchDevice from '../../../hooks/useIsTouchDevice';
+import useDraft from '../../../hooks/useDraft';
 import { useEstadosPrioridades } from '../contexts/EstadosPrioridadesContext';
 import { formatearFecha } from '../../../lib/formatFecha';
+
+// Un requerimiento sin prioridad, o con una prioridad ya inexistente, va al
+// final. Los demás se ordenan por el campo `orden` del catálogo (Crítica=0,
+// Alta=1, ...), respetando la jerarquía que el tenant definió en Configuración.
+function ordenarPorPrioridad(reqs, getPrioridad) {
+  const peso = (req) => {
+    const prioridad = getPrioridad(req.prioridad);
+    return prioridad ? prioridad.orden : Number.MAX_SAFE_INTEGER;
+  };
+  return [...reqs].sort((a, b) => peso(a) - peso(b));
+}
 
 function ModuleCard({ module, onView, onEdit, onRemove, dragHandle }) {
   const { getEstado, getPrioridad } = useEstadosPrioridades();
   const isTouch = useIsTouchDevice();
   const [infoOpen, setInfoOpen] = useState(false);
+  const [porPrioridad, setPorPrioridad] = useDraft(`modcard_prio_${module.id}`, false);
   const visibilityClass = isTouch ? 'opacity-100' : 'opacity-0 group-hover:opacity-100';
-  const reqs = module.requerimientos ?? [];
+  const reqsBase = module.requerimientos ?? [];
+  const reqs = porPrioridad ? ordenarPorPrioridad(reqsBase, getPrioridad) : reqsBase;
 
   return (
     <div
@@ -85,6 +99,23 @@ function ModuleCard({ module, onView, onEdit, onRemove, dragHandle }) {
             <span className="text-[0.75em] font-semibold text-cuarto/40 font-poppins uppercase tracking-wider">
               Requerimientos
             </span>
+            {reqs.length > 1 && (
+              <button
+                onClick={(e) => { e.stopPropagation(); setPorPrioridad((p) => !p); }}
+                aria-label={porPrioridad ? 'Quitar orden por prioridad' : 'Ordenar por prioridad'}
+                aria-pressed={porPrioridad}
+                title={porPrioridad ? 'Orden por prioridad activo' : 'Ordenar por prioridad'}
+                className={[
+                  'flex items-center gap-[0.3em] px-[0.5em] h-[1.6em] rounded-[0.4em] text-[0.7em] font-poppins font-medium transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-segundo/50',
+                  porPrioridad
+                    ? 'bg-segundo/15 border border-segundo/30 text-segundo'
+                    : 'border border-cuarto/10 text-cuarto/40 hover:text-segundo hover:border-segundo/30',
+                ].join(' ')}
+              >
+                <FontAwesomeIcon icon={faFlag} className="text-[0.85em]" />
+                Prioridad
+              </button>
+            )}
             <span className="ml-auto text-[0.75em] text-segundo/60 font-poppins font-semibold">
               {reqs.length}
             </span>
@@ -105,6 +136,11 @@ function ModuleCard({ module, onView, onEdit, onRemove, dragHandle }) {
                     <span className="text-[0.75em] text-cuarto/70 font-roboto truncate flex-1 min-w-0">
                       {req.texto}
                     </span>
+                    {getPrioridad(req.prioridad) && (
+                      <span className="flex-shrink-0">
+                        <Badge config={getPrioridad(req.prioridad)} size="sm" />
+                      </span>
+                    )}
                   </li>
                 ))}
               </ul>

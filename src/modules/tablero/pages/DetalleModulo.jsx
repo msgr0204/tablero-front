@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowLeft, faCubes, faListCheck, faCommentDots, faPen, faMagnifyingGlass, faTag, faFlag, faLayerGroup } from '@fortawesome/free-solid-svg-icons';
+import { faArrowLeft, faCubes, faListCheck, faCommentDots, faPen, faMagnifyingGlass, faTag, faFlag, faLayerGroup, faPlus } from '@fortawesome/free-solid-svg-icons';
 import { DndContext, closestCenter, DragOverlay } from '@dnd-kit/core';
 import { SortableContext, arrayMove, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import AppHeader from '../../../components/AppHeader';
@@ -10,8 +10,8 @@ import Badge from '../../../components/Badge';
 import ConfirmDeleteModal from '../../../components/ConfirmDeleteModal';
 import FilterDropdown from '../../../components/FilterDropdown';
 import ModuleForm from '../components/ModuleForm';
+import RequirementForm from '../components/RequirementForm';
 import ObservationList from '../components/ObservationList';
-import AddRequirementInline from '../components/AddRequirementInline';
 import RequirementItem from '../components/RequirementItem';
 import CompletedRequirementItem from '../components/CompletedRequirementItem';
 import RequirementAttachments from '../components/RequirementAttachments';
@@ -31,13 +31,15 @@ function DetalleModulo() {
   const {
     module, loading, fetchModule, updateDetail,
     addRequirement, updateRequirement, removeRequirement, reorderRequirements, toggleCompletado,
-    addModuleObservation, removeModuleObservation, addReqObservation, removeReqObservation,
+    addModuleObservation, removeModuleObservation, editModuleObservation,
+    addReqObservation, removeReqObservation, editReqObservation,
     addAdjunto, removeAdjunto,
   } = useModuleDetail(moduloId);
   const { isOpen: isDeleteOpen, confirming: deleting, requestRemove, cancelRemove, confirmRemove, pendingId: deletingId } = useConfirmDelete(removeRequirement);
 
   const [activeReqId, setActiveReqId] = useState(null);
   const [isEditOpen, setIsEditOpen] = useState(false);
+  const [isAddReqOpen, setIsAddReqOpen] = useState(false);
   const [selectedReqId, setSelectedReqId] = useState(null);
   const [activeTab, setActiveTab] = useState('detalle');
 
@@ -48,7 +50,7 @@ function DetalleModulo() {
   }, [fetchModule, categoriaId, navigate]);
 
   const reqs = module?.requerimientos ?? [];
-  const { result: filteredReqs, query, setQuery, filters, setFilter, hasActiveFilters } = useSearchSort(reqs, { searchKey: 'texto' });
+  const { result: filteredReqs, query, setQuery, filters, setFilter, hasActiveFilters } = useSearchSort(reqs, { searchKey: 'texto', persistKey: 'requerimientos' });
 
   if (loading || !module) {
     return (
@@ -67,6 +69,11 @@ function DetalleModulo() {
   const handleUpdateModule = async (payload) => {
     await updateDetail(payload);
     setIsEditOpen(false);
+  };
+
+  const handleAddRequirement = async (payload) => {
+    await addRequirement(payload);
+    setIsAddReqOpen(false);
   };
 
   const handleSelectReq = (reqId) => {
@@ -137,10 +144,15 @@ function DetalleModulo() {
             <div className="flex items-center gap-[0.5em] px-[1.25em] sm:px-[1.5em] py-[1em] border-b border-cuarto/10 flex-shrink-0">
               <FontAwesomeIcon icon={faListCheck} className="text-segundo/60 text-[0.9em]" />
               <span className="text-[0.85em] font-semibold text-cuarto font-poppins uppercase tracking-wider">Requerimientos</span>
-              <span className="ml-auto text-[0.85em] text-segundo/70 font-poppins font-semibold">{pendientes.length} pendientes</span>
+              <span className="text-[0.85em] text-segundo/70 font-poppins font-semibold">· {pendientes.length} pendientes</span>
+              <button
+                onClick={() => setIsAddReqOpen(true)}
+                className="ml-auto flex items-center gap-[0.4em] px-[0.7em] h-[1.85em] rounded-[0.5em] text-[0.75em] font-semibold font-poppins bg-segundo/10 border border-segundo/25 text-segundo hover:bg-segundo/20 active:scale-95 transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-segundo/50 flex-shrink-0"
+              >
+                <FontAwesomeIcon icon={faPlus} className="text-[0.75em]" />
+                Nuevo requerimiento
+              </button>
             </div>
-
-            <AddRequirementInline onAdd={addRequirement} draftKey={`req_inline_${module.id}`} />
 
             <div className="flex items-center gap-[0.5em] px-[1.25em] sm:px-[1.5em] py-[0.85em] border-b border-cuarto/10 flex-shrink-0 flex-wrap">
               <div className="relative flex-1 min-w-[9em]">
@@ -254,7 +266,15 @@ function DetalleModulo() {
                       </div>
                       <ul className="flex flex-col gap-[0.6em]">
                         {completados.map((req, index) => (
-                          <CompletedRequirementItem key={req.id} req={req} index={index} onRemove={requestRemove} onToggle={toggleCompletado} />
+                          <CompletedRequirementItem
+                            key={req.id}
+                            req={req}
+                            index={index}
+                            onRemove={requestRemove}
+                            onToggle={toggleCompletado}
+                            selected={selectedReqId === req.id}
+                            onSelect={handleSelectReq}
+                          />
                         ))}
                       </ul>
                     </div>
@@ -309,6 +329,7 @@ function DetalleModulo() {
                       <ObservationList
                         observaciones={selectedReq.observaciones ?? []}
                         onRemove={(obsId) => removeReqObservation(selectedReq.id, obsId)}
+                        onEdit={(obsId, texto) => editReqObservation(selectedReq.id, obsId, texto)}
                         hideInput
                       />
                     </div>
@@ -323,6 +344,7 @@ function DetalleModulo() {
                   observaciones={module.observaciones ?? []}
                   onAdd={addModuleObservation}
                   onRemove={removeModuleObservation}
+                  onEdit={editModuleObservation}
                   draftKey={`obs_modulo_${module.id}`}
                 />
               )}
@@ -331,6 +353,13 @@ function DetalleModulo() {
 
         </section>
       </main>
+
+      <Modal isOpen={isAddReqOpen} onClose={() => setIsAddReqOpen(false)} title="Nuevo requerimiento" size="lg">
+        <RequirementForm
+          onSubmit={handleAddRequirement}
+          onCancel={() => setIsAddReqOpen(false)}
+        />
+      </Modal>
 
       <Modal isOpen={isEditOpen} onClose={() => setIsEditOpen(false)} title="Editar módulo">
         <ModuleForm

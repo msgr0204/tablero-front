@@ -20,6 +20,16 @@ const notificacionService = {
     return normalize(data);
   },
 
+  marcarTodasLeidas: async () => {
+    const { data } = await apiClient.patch('/notificaciones/leer-todas');
+    return data.total;
+  },
+
+  marcarVariasLeidas: async (ids) => {
+    const { data } = await apiClient.patch('/notificaciones/leer-varias', { ids });
+    return data.total;
+  },
+
   getHistorial: async (pagina = 1, porPagina = 20) => {
     const { data } = await apiClient.get('/notificaciones/historial', { params: { pagina, porPagina } });
     return { ...data, notificaciones: data.notificaciones.map(normalize) };

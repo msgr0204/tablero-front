@@ -17,7 +17,8 @@ function NotificationBell() {
   const {
     notificaciones, noLeidas, loading,
     historial, pagina, totalPaginas, loadingHistorial,
-    fetchNoLeidas, fetchNotificaciones, fetchHistorial, marcarLeida,
+    fetchNoLeidas, fetchNotificaciones, fetchHistorial,
+    marcarLeida, marcarTodasLeidas, marcarVariasLeidas,
   } = useNotificaciones();
 
   useEffect(() => {
@@ -88,14 +89,24 @@ function NotificationBell() {
           style={{ top: dropdownPos.top, right: dropdownPos.right, zIndex: 99999, position: 'fixed' }}
           className="w-[22em] max-w-[90vw] bg-primero-fuerte border border-cuarto/10 rounded-[0.75em] shadow-2xl shadow-primero-oscuro/80 overflow-hidden flex flex-col"
         >
-          <div className="flex items-center justify-between px-[1em] py-[0.75em] border-b border-cuarto/10 flex-shrink-0">
+          <div className="flex items-center justify-between gap-[0.75em] px-[1em] py-[0.75em] border-b border-cuarto/10 flex-shrink-0">
             <p className="text-[0.875em] font-semibold text-cuarto font-poppins">Notificaciones</p>
-            <button
-              onClick={handleVerTodas}
-              className="text-[0.75em] text-segundo/70 hover:text-segundo transition-colors duration-200 font-roboto underline"
-            >
-              Ver todas
-            </button>
+            <div className="flex items-center gap-[0.75em]">
+              {noLeidas > 0 && (
+                <button
+                  onClick={() => marcarTodasLeidas()}
+                  className="text-[0.75em] text-cuarto/50 hover:text-segundo transition-colors duration-200 font-roboto"
+                >
+                  Marcar todas
+                </button>
+              )}
+              <button
+                onClick={handleVerTodas}
+                className="text-[0.75em] text-segundo/70 hover:text-segundo transition-colors duration-200 font-roboto underline"
+              >
+                Ver todas
+              </button>
+            </div>
           </div>
 
           <div className="max-h-[24em] overflow-y-auto">
@@ -157,6 +168,9 @@ function NotificationBell() {
         totalPaginas={totalPaginas}
         loading={loadingHistorial}
         onCambiarPagina={handleCambiarPagina}
+        onMarcarVarias={marcarVariasLeidas}
+        onMarcarTodas={marcarTodasLeidas}
+        hayNoLeidas={historial.some((n) => !n.leida)}
       />
     </div>
   );

@@ -95,6 +95,11 @@ const moduleService = {
     await apiClient.delete(`/modulos/${moduleId}/observations/${obsId}`);
   },
 
+  editModuleObservation: async (moduleId, obsId, texto) => {
+    const { data } = await apiClient.patch(`/modulos/${moduleId}/observations/${obsId}`, { texto });
+    return normalizeObservacion(data);
+  },
+
   addReqObservation: async (moduleId, reqId, texto) => {
     const { data } = await apiClient.post(`/modulos/requirements/${reqId}/observations`, { texto });
     return normalizeObservacion(data);
@@ -102,6 +107,11 @@ const moduleService = {
 
   removeReqObservation: async (moduleId, reqId, obsId) => {
     await apiClient.delete(`/modulos/requirements/${reqId}/observations/${obsId}`);
+  },
+
+  editReqObservation: async (moduleId, reqId, obsId, texto) => {
+    const { data } = await apiClient.patch(`/modulos/requirements/${reqId}/observations/${obsId}`, { texto });
+    return normalizeObservacion(data);
   },
 
   addAdjunto: async (moduleId, reqId, archivo) => {

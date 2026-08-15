@@ -30,7 +30,7 @@ function Tablero() {
   const { estados, prioridades } = useEstadosPrioridades();
   const { categories, loading, fetchCategories, createCategory, updateCategory, removeCategory, reorderCategories } = useCategories();
   const { isOpen: isDeleteOpen, confirming: deleting, requestRemove, cancelRemove, confirmRemove, pendingId: deletingId } = useConfirmDelete(removeCategory);
-  const { result: filteredCategories, query, setQuery, sort, setSort, filters, setFilter, clearFilters, hasActiveFilters } = useSearchSort(categories);
+  const { result: filteredCategories, query, setQuery, sort, setSort, filters, setFilter, clearFilters, hasActiveFilters } = useSearchSort(categories, { persistKey: 'categorias' });
   const isReorderDisabled = query.trim() !== '' || sort !== 'custom' || hasActiveFilters;
   const sensors = useDragSensors();
 
