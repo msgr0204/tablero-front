@@ -1,45 +1,46 @@
 import { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 import { useAmbito } from '../context/AmbitoContext';
 import tableroPersonalService from '../modules/tablero/services/tableroPersonalService';
 
-// El tablero personal solo necesita inicializarse (clonar catálogos) una vez por
-// carga de la app. Guardar la promesa fuera de React evita que StrictMode (doble
-// montaje en dev) o remontajes por key disparen la clonación varias veces en
-// paralelo. El índice único del backend es la red final, pero esto evita el ruido.
-let inicializacionPersonal = null;
+// La clonación del catálogo personal solo corre una vez por carga de la app.
+// Guardar la promesa fuera de React evita que StrictMode o remontajes por key
+// disparen la clonación en paralelo. El índice único del backend es la red final.
+let inicializacionPropia = null;
 
-// Fija el ámbito activo al entrar a una ruta y sincroniza el header antes de
-// dejar renderizar las páginas (que hacen fetch al montar). Para el ámbito
-// personal, además asegura que el catálogo personal exista (clonado de la
-// empresa la primera vez) antes de mostrar el tablero.
-function AmbitoScope({ ambito, inicializar = false, children }) {
+// Fija el ámbito y el tablero activo (owner) ANTES de renderizar las páginas
+// (que hacen fetch al montar). El owner es la fuente de verdad de "qué tablero
+// veo" y viene de la URL:
+//   - /tablero-personal            -> mi tablero (ownerParam undefined)
+//   - /tablero-personal/de/:owner  -> tablero compartido de ese owner
+// Así el tablero activo sobrevive a recargas y no puede ser pisado por un
+// efecto (que era el bug: el scope reseteaba el owner que el selector fijaba).
+function AmbitoScope({ ambito, children }) {
+  const { ownerId: ownerParam } = useParams();
   const { ambito: actual, setAmbito, ownerId, setOwnerId } = useAmbito();
-  const [listo, setListo] = useState(!inicializar && actual === ambito);
+
+  const esPersonalPropio = ambito === 'personal' && !ownerParam;
+  const ownerObjetivo = ambito === 'personal' ? (ownerParam ?? null) : null;
+  const [listo, setListo] = useState(actual === ambito && ownerId === ownerObjetivo && !esPersonalPropio);
 
   useEffect(() => {
     let vigente = true;
-    if (actual !== ambito) {
-      setAmbito(ambito);
-    }
-    // Al entrar por la ruta base del tablero personal (la que inicializa), es
-    // MI tablero: limpio cualquier owner externo que hubiera quedado del selector.
-    if (inicializar && ownerId) {
-      setOwnerId(null);
-    }
-    if (!inicializar) {
+    if (actual !== ambito) setAmbito(ambito);
+    if (ownerId !== ownerObjetivo) setOwnerId(ownerObjetivo);
+
+    // Solo se clona el catálogo del tablero PROPIO (no el de un tablero ajeno,
+    // que ya tiene los suyos). El header ya quedó sincronizado por setOwnerId.
+    if (!esPersonalPropio) {
       setListo(true);
       return;
     }
-    // El ámbito ya quedó en localStorage vía setAmbito (síncrono), así que la
-    // llamada de inicialización viaja con el header correcto. Se reutiliza la
-    // misma promesa si ya se disparó, para no clonar en paralelo.
-    if (!inicializacionPersonal) {
-      inicializacionPersonal = tableroPersonalService.inicializar()
+    if (!inicializacionPropia) {
+      inicializacionPropia = tableroPersonalService.inicializar()
         .catch(() => { /* si ya existe o falla, el tablero igual carga */ });
     }
-    inicializacionPersonal.finally(() => { if (vigente) setListo(true); });
+    inicializacionPropia.finally(() => { if (vigente) setListo(true); });
     return () => { vigente = false; };
-  }, [ambito, actual, inicializar, setAmbito, ownerId, setOwnerId]);
+  }, [ambito, actual, ownerObjetivo, ownerId, esPersonalPropio, setAmbito, setOwnerId]);
 
   if (!listo) {
     return (

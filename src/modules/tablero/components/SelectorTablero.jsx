@@ -1,15 +1,18 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Listbox } from '@headlessui/react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronDown, faCheck } from '@fortawesome/free-solid-svg-icons';
 import { useAmbito } from '../../../context/AmbitoContext';
 import colaboradorService from '../services/colaboradorService';
 
-// Dropdown del header del tablero personal: alterna entre "Mi tablero" (ownerId
-// null) y los tableros que otros me compartieron. Al elegir, cambia el ownerId
-// del contexto (que viaja como X-Owner-Id) y avisa al padre para refrescar.
-function SelectorTablero({ onCambiar }) {
-  const { ownerId, setOwnerId } = useAmbito();
+// Dropdown del header del tablero personal: alterna entre "Mi tablero" y los
+// tableros que otros me compartieron. Al elegir, NAVEGA a la ruta del tablero
+// (el owner vive en la URL, que es la fuente de verdad); AmbitoScope de la ruta
+// destino sincroniza el contexto y el header X-Owner-Id.
+function SelectorTablero() {
+  const { ownerId } = useAmbito();
+  const navigate = useNavigate();
   const [compartidos, setCompartidos] = useState([]);
 
   useEffect(() => {
@@ -30,8 +33,7 @@ function SelectorTablero({ onCambiar }) {
   const seleccionada = opciones.find((o) => o.value === ownerId) ?? opciones[0];
 
   const handleChange = (nuevoOwnerId) => {
-    setOwnerId(nuevoOwnerId ?? null);
-    onCambiar?.(nuevoOwnerId ?? null);
+    navigate(nuevoOwnerId ? `/tablero-personal/de/${nuevoOwnerId}` : '/tablero-personal');
   };
 
   return (

@@ -45,12 +45,13 @@ function VistaEmpresa({ children }) {
     );
 }
 
-// Envuelve una página del tablero fijando el ámbito 'personal' e inicializando
-// el catálogo personal (clonado de la empresa la primera vez).
+// Envuelve una página del tablero en ámbito 'personal'. El tablero concreto (el
+// propio o uno compartido) lo determina el :ownerId de la URL, que AmbitoScope
+// lee. Así "qué tablero veo" vive en la ruta y sobrevive a recargas.
 function VistaPersonal({ children }) {
     return (
         <PrivateRoute>
-            <AmbitoScope ambito="personal" inicializar>
+            <AmbitoScope ambito="personal">
                 <TableroProviders>{children}</TableroProviders>
             </AmbitoScope>
         </PrivateRoute>
@@ -87,6 +88,12 @@ function App() {
                         <Route path="/tablero-personal/:categoriaId/modulos" element={<VistaPersonal><ModulosCategoria /></VistaPersonal>} />
                         <Route path="/tablero-personal/:categoriaId/modulos/:moduloId" element={<VistaPersonal><DetalleModulo /></VistaPersonal>} />
                         <Route path="/tablero-personal/configuracion-estados" element={<VistaPersonal><ConfiguracionEstados /></VistaPersonal>} />
+
+                        {/* Tablero personal COMPARTIDO por otro usuario (owner en la URL) */}
+                        <Route path="/tablero-personal/de/:ownerId" element={<VistaPersonal><Tablero /></VistaPersonal>} />
+                        <Route path="/tablero-personal/de/:ownerId/:categoriaId/modulos" element={<VistaPersonal><ModulosCategoria /></VistaPersonal>} />
+                        <Route path="/tablero-personal/de/:ownerId/:categoriaId/modulos/:moduloId" element={<VistaPersonal><DetalleModulo /></VistaPersonal>} />
+                        <Route path="/tablero-personal/de/:ownerId/configuracion-estados" element={<VistaPersonal><ConfiguracionEstados /></VistaPersonal>} />
 
                         <Route path="*" element={<Navigate to="/auth/login" replace />} />
                     </Routes>

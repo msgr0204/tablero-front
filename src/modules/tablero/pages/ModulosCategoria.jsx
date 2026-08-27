@@ -19,6 +19,7 @@ import useSearchSort from '../../../hooks/useSearchSort';
 import useDragSensors from '../../../hooks/useDragSensors';
 import useConfirmDelete from '../../../hooks/useConfirmDelete';
 import useTableroBase from '../hooks/useTableroBase';
+import usePermisosTablero from '../hooks/usePermisosTablero';
 import { useBranding } from '../../../context/BrandingContext';
 import { useEstadosPrioridades } from '../contexts/EstadosPrioridadesContext';
 
@@ -26,6 +27,7 @@ function ModulosCategoria() {
   const { categoriaId } = useParams();
   const navigate = useNavigate();
   const base = useTableroBase();
+  const { puedeModificarItem } = usePermisosTablero();
   const { branding } = useBranding();
   const { estados, prioridades } = useEstadosPrioridades();
   const [isCreateOpen, setIsCreateOpen] = useState(false);
@@ -37,6 +39,9 @@ function ModulosCategoria() {
   const { result: filteredModules, query, setQuery, sort, setSort, filters, setFilter, clearFilters, hasActiveFilters } = useSearchSort(modules, { persistKey: 'modulos' });
   const isReorderDisabled = query.trim() !== '' || sort !== 'custom' || hasActiveFilters;
   const sensors = useDragSensors();
+  // Crear módulos hereda la autoría de la categoría padre: solo quien la creó
+  // (o el dueño del tablero) puede agregarle módulos.
+  const puedeCrearModulos = Boolean(categoria) && puedeModificarItem(categoria);
 
   useEffect(() => {
     fetchCategory().then((found) => {
@@ -91,7 +96,7 @@ function ModulosCategoria() {
             </h1>
           </div>
         </div>
-        <CreateModuleButton onClick={() => setIsCreateOpen(true)} />
+        {puedeCrearModulos && <CreateModuleButton onClick={() => setIsCreateOpen(true)} />}
       </AppHeader>
 
       <main className="px-[1em] sm:px-[1.5em] py-[1em] sm:py-[1.5em]">
@@ -101,7 +106,7 @@ function ModulosCategoria() {
           </div>
         )}
 
-        {!loading && modules.length === 0 && <EmptyState onAction={() => setIsCreateOpen(true)} />}
+        {!loading && modules.length === 0 && <EmptyState onAction={() => setIsCreateOpen(true)} puedeCrear={puedeCrearModulos} />}
 
         {!loading && modules.length > 0 && (
           <>
@@ -194,26 +199,26 @@ function ModulosCategoria() {
   );
 }
 
-function EmptyState({ onAction }) {
+function EmptyState({ onAction, puedeCrear }) {
   return (
     <div className="flex flex-col items-center justify-center py-[6em] gap-[1em]">
-      <button
-        onClick={onAction}
-        aria-label="Crear primer módulo"
-        className="w-[4em] h-[4em] rounded-[1em] bg-segundo/10 border border-segundo/20 flex items-center justify-center hover:bg-segundo/20 hover:border-segundo/40 hover:scale-105 active:scale-95 transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-segundo/50"
-      >
-        <FontAwesomeIcon icon={faCubes} className="text-segundo text-[1.5em]" />
-      </button>
+      <div className="w-[4em] h-[4em] rounded-[1em] bg-cuarto/5 border border-cuarto/10 flex items-center justify-center">
+        <FontAwesomeIcon icon={faCubes} className="text-cuarto/30 text-[1.5em]" />
+      </div>
       <div className="text-center">
         <p className="text-[0.9em] font-medium text-cuarto/70 font-poppins">Sin módulos aún</p>
-        <p className="text-[0.8em] text-cuarto/40 mt-[0.25em]">Crea el primer módulo para esta categoría</p>
+        <p className="text-[0.8em] text-cuarto/40 mt-[0.25em]">
+          {puedeCrear ? 'Crea el primer módulo para esta categoría' : 'Solo quien creó esta categoría puede agregarle módulos'}
+        </p>
       </div>
-      <button
-        onClick={onAction}
-        className="px-[1em] h-[2.25em] rounded-[0.5em] text-[0.8em] font-semibold font-poppins bg-segundo/10 border border-segundo/25 text-segundo hover:bg-segundo/20 transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-segundo/50"
-      >
-        + Crear módulo
-      </button>
+      {puedeCrear && (
+        <button
+          onClick={onAction}
+          className="px-[1em] h-[2.25em] rounded-[0.5em] text-[0.8em] font-semibold font-poppins bg-segundo/10 border border-segundo/25 text-segundo hover:bg-segundo/20 transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-segundo/50"
+        >
+          + Crear módulo
+        </button>
+      )}
     </div>
   );
 }

@@ -16,6 +16,7 @@ import RequirementItem from '../components/RequirementItem';
 import CompletedRequirementItem from '../components/CompletedRequirementItem';
 import RequirementAttachments from '../components/RequirementAttachments';
 import useModuleDetail from '../hooks/useModuleDetail';
+import usePermisosTablero from '../hooks/usePermisosTablero';
 import useSearchSort from '../../../hooks/useSearchSort';
 import useDragSensors from '../../../hooks/useDragSensors';
 import useConfirmDelete from '../../../hooks/useConfirmDelete';
@@ -27,6 +28,7 @@ function DetalleModulo() {
   const { categoriaId, moduloId } = useParams();
   const navigate = useNavigate();
   const base = useTableroBase();
+  const { puedeModificarItem } = usePermisosTablero();
   const { branding } = useBranding();
   const { estados, prioridades, tipos, getEstado, getPrioridad, getTipo } = useEstadosPrioridades();
   const sensors = useDragSensors();
@@ -147,13 +149,15 @@ function DetalleModulo() {
               <FontAwesomeIcon icon={faListCheck} className="text-segundo/60 text-[0.9em]" />
               <span className="text-[0.85em] font-semibold text-cuarto font-poppins uppercase tracking-wider">Requerimientos</span>
               <span className="text-[0.85em] text-segundo/70 font-poppins font-semibold">· {pendientes.length} pendientes</span>
-              <button
-                onClick={() => setIsAddReqOpen(true)}
-                className="ml-auto flex items-center gap-[0.4em] px-[0.7em] h-[1.85em] rounded-[0.5em] text-[0.75em] font-semibold font-poppins bg-segundo/10 border border-segundo/25 text-segundo hover:bg-segundo/20 active:scale-95 transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-segundo/50 flex-shrink-0"
-              >
-                <FontAwesomeIcon icon={faPlus} className="text-[0.75em]" />
-                Nuevo requerimiento
-              </button>
+              {puedeModificarItem(module) && (
+                <button
+                  onClick={() => setIsAddReqOpen(true)}
+                  className="ml-auto flex items-center gap-[0.4em] px-[0.7em] h-[1.85em] rounded-[0.5em] text-[0.75em] font-semibold font-poppins bg-segundo/10 border border-segundo/25 text-segundo hover:bg-segundo/20 active:scale-95 transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-segundo/50 flex-shrink-0"
+                >
+                  <FontAwesomeIcon icon={faPlus} className="text-[0.75em]" />
+                  Nuevo requerimiento
+                </button>
+              )}
             </div>
 
             <div className="flex items-center gap-[0.5em] px-[1.25em] sm:px-[1.5em] py-[0.85em] border-b border-cuarto/10 flex-shrink-0 flex-wrap">

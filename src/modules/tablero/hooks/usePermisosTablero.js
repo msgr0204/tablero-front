@@ -5,26 +5,26 @@ import { useAmbito } from '../../../context/AmbitoContext';
 // verdad). Sirve para ocultar/deshabilitar controles que igual serían
 // rechazados en el servidor, dando una UX clara en tableros compartidos.
 //
-// - En empresa: sin restricciones (todos pueden con todo, como siempre).
-// - En personal propio (soy dueño): puedo todo.
-// - En personal de otro (colaborador): solo edito/borro lo que YO creé; no
-//   marco estados finales ni completo; no toco el catálogo ni el equipo.
+// Dos tipos de permiso distintos:
+//  1. AUTORÍA de ítems (editar/borrar/agregar-hijos): estricta para TODOS,
+//     incluido el dueño del tablero — solo quien creó el ítem lo modifica. Esto
+//     evita manipulación de lo ajeno y mantiene la trazabilidad.
+//  2. PRIVILEGIOS de dueño (marcar estado final, completar, catálogo, equipo,
+//     reordenar): solo el dueño del tablero personal.
+// En empresa no hay restricciones (todos con todo, como siempre).
 function usePermisosTablero() {
   const { usuario } = useAuth();
   const { esPersonal, esDueno } = useAmbito();
 
   const puedeModificarItem = (item) => {
     if (!esPersonal) return true;
-    if (esDueno) return true;
-    // Colaborador: solo lo suyo. Ítems sin creador (viejos) quedan abiertos,
-    // igual que en el backend.
+    // Ítems sin creador (empresa o previos) quedan abiertos, igual que el backend.
     if (!item?.creado_por_id) return true;
     return item.creado_por_id === usuario?.id;
   };
 
-  // Marcar estado final / completar-reabrir: solo el dueño (en personal).
+  // Privilegios exclusivos del dueño del tablero (en personal).
   const puedeMarcarFinal = !esPersonal || esDueno;
-  // Gestionar catálogo (estados/prioridades/tipos) y equipo: solo el dueño.
   const puedeGestionarCatalogo = !esPersonal || esDueno;
   const puedeGestionarEquipo = esPersonal && esDueno;
 
