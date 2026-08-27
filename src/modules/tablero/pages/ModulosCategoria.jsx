@@ -18,12 +18,14 @@ import useCategory from '../hooks/useCategory';
 import useSearchSort from '../../../hooks/useSearchSort';
 import useDragSensors from '../../../hooks/useDragSensors';
 import useConfirmDelete from '../../../hooks/useConfirmDelete';
+import useTableroBase from '../hooks/useTableroBase';
 import { useBranding } from '../../../context/BrandingContext';
 import { useEstadosPrioridades } from '../contexts/EstadosPrioridadesContext';
 
 function ModulosCategoria() {
   const { categoriaId } = useParams();
   const navigate = useNavigate();
+  const base = useTableroBase();
   const { branding } = useBranding();
   const { estados, prioridades } = useEstadosPrioridades();
   const [isCreateOpen, setIsCreateOpen] = useState(false);
@@ -38,10 +40,10 @@ function ModulosCategoria() {
 
   useEffect(() => {
     fetchCategory().then((found) => {
-      if (!found) navigate('/tablero', { replace: true });
+      if (!found) navigate(base, { replace: true });
     });
     fetchModules();
-  }, [categoriaId, fetchCategory, fetchModules, navigate]);
+  }, [categoriaId, fetchCategory, fetchModules, navigate, base]);
 
   const handleCreateModule = async (payload) => {
     await createModule(payload);
@@ -49,7 +51,7 @@ function ModulosCategoria() {
   };
 
   const handleViewModule = (mod) => {
-    navigate(`/tablero/${categoriaId}/modulos/${mod.id}`);
+    navigate(`${base}/${categoriaId}/modulos/${mod.id}`);
   };
 
   const handleUpdateModule = async (payload) => {
@@ -74,7 +76,7 @@ function ModulosCategoria() {
       <AppHeader logoUrl={branding?.logoUrl} nombreMarca={branding?.nombreMarca}>
         <div className="flex items-center gap-[0.5em] sm:gap-[0.75em] min-w-0">
           <button
-            onClick={() => navigate('/tablero')}
+            onClick={() => navigate(base)}
             aria-label="Volver a categorías"
             className="w-[2.5em] h-[2.5em] flex items-center justify-center rounded-[0.5em] text-cuarto/40 hover:text-segundo hover:bg-segundo/10 transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-segundo/50 flex-shrink-0"
           >

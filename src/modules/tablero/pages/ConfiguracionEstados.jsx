@@ -7,11 +7,13 @@ import AppHeader from '../../../components/AppHeader';
 import EstadoPrioridadItem from '../components/EstadoPrioridadItem';
 import CreateEstadoPrioridadForm from '../components/CreateEstadoPrioridadForm';
 import useDragSensors from '../../../hooks/useDragSensors';
+import useTableroBase from '../hooks/useTableroBase';
 import { useEstadosPrioridades } from '../contexts/EstadosPrioridadesContext';
 import { useBranding } from '../../../context/BrandingContext';
 
 function ConfiguracionEstados() {
   const navigate = useNavigate();
+  const base = useTableroBase();
   const { branding } = useBranding();
   const {
     estados, prioridades, tipos, loading,
@@ -47,7 +49,7 @@ function ConfiguracionEstados() {
       <AppHeader logoUrl={branding?.logoUrl} nombreMarca={branding?.nombreMarca}>
         <div className="flex items-center gap-[0.5em] sm:gap-[0.75em] min-w-0 flex-1">
           <button
-            onClick={() => navigate('/tablero')}
+            onClick={() => navigate(base)}
             aria-label="Volver al tablero"
             className="w-[2.5em] h-[2.5em] flex items-center justify-center rounded-[0.5em] text-cuarto/40 hover:text-segundo hover:bg-segundo/10 transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-segundo/50 flex-shrink-0"
           >

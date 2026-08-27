@@ -90,6 +90,17 @@ Siempre normalizar `''`/`undefined` a `null` antes de comparar contra lo que vin
 - Al cerrar sesión o si el token expira, SIEMPRE llamar `resetBrandingColors()` (en `AuthContext#logout` y en el catch de `fetchPerfil`) — si no, el login queda pintado con los colores del último tenant, porque las variables CSS quedan inline en el DOM y nada las revierte solo.
 - `components/Modal.jsx` se monta vía `createPortal` a `document.body`, nunca inline — si se renderiza dentro de un ancestro con `transform` (Framer Motion, headers `sticky`), el `position: fixed` del overlay se ancla a ese ancestro en vez del viewport completo, rompiendo el centrado.
 
+## Ámbito: tablero de empresa vs "Mi tablero" (personal)
+
+Dentro del mismo tenant/sesión, el usuario alterna entre el tablero de la **empresa** y su tablero **personal**. El login no cambia (siempre entra al tenant empresa); el ámbito es contexto de navegación.
+
+- `context/AmbitoContext.jsx` guarda el ámbito activo (`empresa`/`personal`) y lo persiste en `localStorage` bajo la clave `ambito`. `lib/apiClient.js` lee esa clave y manda el header `X-Ambito` en cada request — así el backend filtra por ámbito sin cambiar ninguna URL.
+- Las páginas del tablero (`Tablero`, `ModulosCategoria`, `DetalleModulo`, `ConfiguracionEstados`) se **reusan** para ambos ámbitos; no hay páginas duplicadas. Las rutas de empresa son `/tablero/*` y las personales `/tablero-personal/*` (ver `App.jsx`). `components/AmbitoScope.jsx` fija el ámbito al entrar a la ruta (y en personal llama a `tableroPersonalService.inicializar()` para clonar catálogos la primera vez) antes de renderizar las páginas.
+- El `EstadosPrioridadesProvider` se monta con `key={ambito}` en `App.jsx`: al cambiar de ámbito se remonta y recarga los catálogos, para que nunca queden en memoria los del otro tablero.
+- Navegación interna: usar `hooks/useTableroBase.js` (devuelve `/tablero` o `/tablero-personal` según ámbito) para construir cualquier `navigate`/link entre páginas del tablero — nunca hardcodear `/tablero/...`, o saltarías de un tablero al otro.
+- Persistencia de filtros/orden (`useSearchSort`): la `persistKey` incluye el ámbito (ej. `categorias` vs `categorias_personal`) para que el orden del tablero personal no pise el de empresa.
+- Dashboard, métricas, historial y notificaciones son SOLO de empresa por ahora (roadmaps aparte); el tablero personal no los muestra ni los genera.
+
 ## Cómo trabajamos en este proyecto
 
 - El usuario prueba todo manualmente en su navegador — nunca correr `npm run dev` salvo que lo pida explícitamente.

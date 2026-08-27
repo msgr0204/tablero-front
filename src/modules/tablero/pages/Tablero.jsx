@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTag, faFlag, faChartLine } from '@fortawesome/free-solid-svg-icons';
+import { faTag, faFlag, faChartLine, faUser, faBuilding } from '@fortawesome/free-solid-svg-icons';
 import { DndContext, closestCenter, DragOverlay } from '@dnd-kit/core';
 import { SortableContext, arrayMove, rectSortingStrategy } from '@dnd-kit/sortable';
 import AppHeader from '../../../components/AppHeader';
@@ -18,10 +18,12 @@ import useSearchSort from '../../../hooks/useSearchSort';
 import useDragSensors from '../../../hooks/useDragSensors';
 import useConfirmDelete from '../../../hooks/useConfirmDelete';
 import { useBranding } from '../../../context/BrandingContext';
+import { useAmbito } from '../../../context/AmbitoContext';
 import { useEstadosPrioridades } from '../contexts/EstadosPrioridadesContext';
 
 function Tablero() {
   const navigate = useNavigate();
+  const { esPersonal } = useAmbito();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [activeCategory, setActiveCategory] = useState(null);
   const [searchParams, setSearchParams] = useSearchParams();
@@ -30,7 +32,7 @@ function Tablero() {
   const { estados, prioridades } = useEstadosPrioridades();
   const { categories, loading, fetchCategories, createCategory, updateCategory, removeCategory, reorderCategories } = useCategories();
   const { isOpen: isDeleteOpen, confirming: deleting, requestRemove, cancelRemove, confirmRemove, pendingId: deletingId } = useConfirmDelete(removeCategory);
-  const { result: filteredCategories, query, setQuery, sort, setSort, filters, setFilter, clearFilters, hasActiveFilters } = useSearchSort(categories, { persistKey: 'categorias' });
+  const { result: filteredCategories, query, setQuery, sort, setSort, filters, setFilter, clearFilters, hasActiveFilters } = useSearchSort(categories, { persistKey: esPersonal ? 'categorias_personal' : 'categorias' });
   const isReorderDisabled = query.trim() !== '' || sort !== 'custom' || hasActiveFilters;
   const sensors = useDragSensors();
 
@@ -67,21 +69,50 @@ function Tablero() {
     <div className="min-h-dvh bg-primero text-cuarto font-roboto">
       <AppHeader logoUrl={branding?.logoUrl} nombreMarca={branding?.nombreMarca}>
         <div className="min-w-0 flex-1">
-          <h1 className="text-[0.9em] sm:text-[1.05em] font-semibold font-poppins text-cuarto tracking-tight truncate">
-            Tablero de Requerimientos
-          </h1>
+          <div className="flex items-center gap-[0.5em]">
+            <h1 className="text-[0.9em] sm:text-[1.05em] font-semibold font-poppins text-cuarto tracking-tight truncate">
+              {esPersonal ? 'Mi tablero' : 'Tablero de Requerimientos'}
+            </h1>
+            {esPersonal && (
+              <span className="inline-flex items-center gap-[0.35em] px-[0.6em] py-[0.15em] rounded-full bg-segundo/15 border border-segundo/30 text-segundo text-[0.7em] font-poppins font-medium flex-shrink-0">
+                <FontAwesomeIcon icon={faUser} className="text-[0.7em]" />
+                Personal
+              </span>
+            )}
+          </div>
           <p className="text-[0.75em] text-cuarto/60 mt-[0.1em] hidden sm:block">
-            Organiza y gestiona tus requerimientos por categorías
+            {esPersonal ? 'Tu espacio privado, solo tú lo ves' : 'Organiza y gestiona tus requerimientos por categorías'}
           </p>
         </div>
-        <button
-          onClick={() => navigate('/tablero/dashboard')}
-          aria-label="Ver dashboard ejecutivo"
-          className="flex items-center gap-[0.4em] px-[0.75em] h-[2.25em] sm:h-[2.5em] rounded-[0.5em] flex-shrink-0 text-cuarto/60 font-poppins font-medium text-[0.8em] sm:text-[0.875em] whitespace-nowrap border border-cuarto/10 hover:border-segundo/40 hover:text-segundo transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-segundo/50"
-        >
-          <FontAwesomeIcon icon={faChartLine} className="text-[0.85em]" />
-          <span className="hidden sm:inline">Dashboard</span>
-        </button>
+        {esPersonal ? (
+          <button
+            onClick={() => navigate('/tablero')}
+            aria-label="Volver al tablero de la empresa"
+            className="flex items-center gap-[0.4em] px-[0.75em] h-[2.25em] sm:h-[2.5em] rounded-[0.5em] flex-shrink-0 text-cuarto/60 font-poppins font-medium text-[0.8em] sm:text-[0.875em] whitespace-nowrap border border-cuarto/10 hover:border-segundo/40 hover:text-segundo transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-segundo/50"
+          >
+            <FontAwesomeIcon icon={faBuilding} className="text-[0.85em]" />
+            <span className="hidden sm:inline">Tablero empresa</span>
+          </button>
+        ) : (
+          <>
+            <button
+              onClick={() => navigate('/tablero/dashboard')}
+              aria-label="Ver dashboard ejecutivo"
+              className="flex items-center gap-[0.4em] px-[0.75em] h-[2.25em] sm:h-[2.5em] rounded-[0.5em] flex-shrink-0 text-cuarto/60 font-poppins font-medium text-[0.8em] sm:text-[0.875em] whitespace-nowrap border border-cuarto/10 hover:border-segundo/40 hover:text-segundo transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-segundo/50"
+            >
+              <FontAwesomeIcon icon={faChartLine} className="text-[0.85em]" />
+              <span className="hidden sm:inline">Dashboard</span>
+            </button>
+            <button
+              onClick={() => navigate('/tablero-personal')}
+              aria-label="Ir a mi tablero personal"
+              className="flex items-center gap-[0.4em] px-[0.75em] h-[2.25em] sm:h-[2.5em] rounded-[0.5em] flex-shrink-0 text-cuarto/60 font-poppins font-medium text-[0.8em] sm:text-[0.875em] whitespace-nowrap border border-cuarto/10 hover:border-segundo/40 hover:text-segundo transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-segundo/50"
+            >
+              <FontAwesomeIcon icon={faUser} className="text-[0.85em]" />
+              <span className="hidden sm:inline">Mi tablero</span>
+            </button>
+          </>
+        )}
         <CreateCategoryButton onClick={() => setIsModalOpen(true)} />
       </AppHeader>
 

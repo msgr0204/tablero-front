@@ -7,10 +7,12 @@ import Select from '../../../components/Select';
 import ConfirmDiscardModal from '../../../components/ConfirmDiscardModal';
 import useIsTouchDevice from '../../../hooks/useIsTouchDevice';
 import { useEstadosPrioridades } from '../contexts/EstadosPrioridadesContext';
+import useTableroBase from '../hooks/useTableroBase';
 import { formatearFecha, formatearFechaHora } from '../../../lib/formatFecha';
 
 function CategoryCard({ category, onUpdate, onRemove, dragHandle, autoEdit, onAutoEditDone }) {
   const navigate = useNavigate();
+  const base = useTableroBase();
   const { esEstadoFinal, getEstado, getPrioridad, estados, prioridades } = useEstadosPrioridades();
   const cardRef = useRef(null);
   const [editing, setEditing] = useState(autoEdit ?? false);
@@ -36,7 +38,7 @@ function CategoryCard({ category, onUpdate, onRemove, dragHandle, autoEdit, onAu
   }, [autoEdit]);
 
   const handleNavigate = () => {
-    if (!editing) navigate(`/tablero/${category.id}/modulos`);
+    if (!editing) navigate(`${base}/${category.id}/modulos`);
   };
 
   const handleEdit = (e) => {

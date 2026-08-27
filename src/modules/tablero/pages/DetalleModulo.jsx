@@ -19,12 +19,14 @@ import useModuleDetail from '../hooks/useModuleDetail';
 import useSearchSort from '../../../hooks/useSearchSort';
 import useDragSensors from '../../../hooks/useDragSensors';
 import useConfirmDelete from '../../../hooks/useConfirmDelete';
+import useTableroBase from '../hooks/useTableroBase';
 import { useBranding } from '../../../context/BrandingContext';
 import { useEstadosPrioridades } from '../contexts/EstadosPrioridadesContext';
 
 function DetalleModulo() {
   const { categoriaId, moduloId } = useParams();
   const navigate = useNavigate();
+  const base = useTableroBase();
   const { branding } = useBranding();
   const { estados, prioridades, tipos, getEstado, getPrioridad, getTipo } = useEstadosPrioridades();
   const sensors = useDragSensors();
@@ -45,9 +47,9 @@ function DetalleModulo() {
 
   useEffect(() => {
     fetchModule().then((found) => {
-      if (!found) navigate(`/tablero/${categoriaId}/modulos`, { replace: true });
+      if (!found) navigate(`${base}/${categoriaId}/modulos`, { replace: true });
     });
-  }, [fetchModule, categoriaId, navigate]);
+  }, [fetchModule, categoriaId, navigate, base]);
 
   const reqs = module?.requerimientos ?? [];
   const { result: filteredReqs, query, setQuery, filters, setFilter, hasActiveFilters } = useSearchSort(reqs, { searchKey: 'texto', persistKey: 'requerimientos' });
@@ -82,7 +84,7 @@ function DetalleModulo() {
   };
 
   const handleVolver = () => {
-    navigate(`/tablero/${categoriaId}/modulos`);
+    navigate(`${base}/${categoriaId}/modulos`);
   };
 
   const handleDragStart = ({ active }) => setActiveReqId(active.id);
