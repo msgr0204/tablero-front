@@ -101,6 +101,12 @@ Dentro del mismo tenant/sesión, el usuario alterna entre el tablero de la **emp
 - Persistencia de filtros/orden (`useSearchSort`): la `persistKey` incluye el ámbito (ej. `categorias` vs `categorias_personal`) para que el orden del tablero personal no pise el de empresa.
 - Dashboard, métricas, historial y notificaciones son SOLO de empresa por ahora (roadmaps aparte); el tablero personal no los muestra ni los genera.
 
+### Compartir el tablero personal (equipo/colaboradores)
+
+El dueño comparte su tablero personal con usuarios del tenant (botón "Equipo" → `EquipoModal`, acceso directo sin invitación). Un colaborador entra al tablero de otro y `apiClient` manda `X-Owner-Id` (guardado como `owner_id` en localStorage, orquestado por `AmbitoContext`: `ownerId` null = mi tablero). El `SelectorTablero` en el header cambia entre "Mi tablero" y los tableros compartidos conmigo. Al cambiar `ownerId`, el `key` del `EstadosPrioridadesProvider` (en `App.jsx`, `${ambito}:${owner}`) remonta y refetchea todo — nunca queda en memoria data del tablero anterior.
+
+Permisos en UI: `hooks/usePermisosTablero.js` es el espejo de la matriz del backend (que es la autoridad) — `puedeModificarItem(item)` (solo el creador edita/borra), `puedeMarcarFinal` y `puedeGestionarCatalogo`/`puedeGestionarEquipo` (solo el dueño). Se usa para ocultar/deshabilitar controles; el backend igual rechaza lo que no corresponda.
+
 ## Cómo trabajamos en este proyecto
 
 - El usuario prueba todo manualmente en su navegador — nunca correr `npm run dev` salvo que lo pida explícitamente.

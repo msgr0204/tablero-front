@@ -12,7 +12,14 @@ apiClient.interceptors.request.use((config) => {
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
-  config.headers['X-Ambito'] = localStorage.getItem('ambito') === 'personal' ? 'personal' : 'empresa';
+  const ambito = localStorage.getItem('ambito') === 'personal' ? 'personal' : 'empresa';
+  config.headers['X-Ambito'] = ambito;
+  // En ámbito personal, si estoy viendo el tablero de otro usuario (me lo
+  // compartió), su id viaja como X-Owner-Id; el backend valida el acceso.
+  if (ambito === 'personal') {
+    const ownerId = localStorage.getItem('owner_id');
+    if (ownerId) config.headers['X-Owner-Id'] = ownerId;
+  }
   return config;
 });
 

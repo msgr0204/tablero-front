@@ -1,23 +1,26 @@
 import { createContext, useContext, useState, useCallback } from 'react';
+import { useAuth } from './AuthContext';
 
 const AmbitoContext = createContext(null);
 
 const AMBITOS = ['empresa', 'personal'];
 
-// El ámbito activo (empresa vs tablero personal) se guarda en localStorage para
-// que el interceptor de apiClient —que vive fuera de React— lea el mismo valor
-// y lo mande como header X-Ambito en cada request. Aquí solo se orquesta el
-// estado en memoria + su persistencia; el filtrado real ocurre en el backend.
-function leerAmbitoInicial() {
+// Estado de navegación por ámbito. Persiste en localStorage para que el
+// interceptor de apiClient —fuera de React— mande X-Ambito y X-Owner-Id
+// coherentes en cada request. El filtrado y los permisos reales viven en el
+// backend; aquí solo se orquesta qué se está viendo.
+function leer(clave, porDefecto) {
   try {
-    return localStorage.getItem('ambito') === 'personal' ? 'personal' : 'empresa';
+    return localStorage.getItem(clave) ?? porDefecto;
   } catch {
-    return 'empresa';
+    return porDefecto;
   }
 }
 
 function AmbitoProvider({ children }) {
-  const [ambito, setAmbitoState] = useState(leerAmbitoInicial);
+  const [ambito, setAmbitoState] = useState(() => (leer('ambito', 'empresa') === 'personal' ? 'personal' : 'empresa'));
+  const [ownerId, setOwnerIdState] = useState(() => leer('owner_id', null));
+  const { usuario } = useAuth();
 
   const setAmbito = useCallback((nuevo) => {
     const valor = AMBITOS.includes(nuevo) ? nuevo : 'empresa';
@@ -25,8 +28,22 @@ function AmbitoProvider({ children }) {
     setAmbitoState(valor);
   }, []);
 
+  // ownerId null (o el propio) = mi tablero; otro id = tablero que me compartieron.
+  const setOwnerId = useCallback((id) => {
+    try {
+      if (id) localStorage.setItem('owner_id', id);
+      else localStorage.removeItem('owner_id');
+    } catch { /* almacenamiento no disponible */ }
+    setOwnerIdState(id ?? null);
+  }, []);
+
+  const esPersonal = ambito === 'personal';
+  // Soy dueño del tablero personal activo si no hay owner externo, o si coincide
+  // con mi propio usuario.
+  const esDueno = esPersonal && (!ownerId || ownerId === usuario?.id);
+
   return (
-    <AmbitoContext.Provider value={{ ambito, setAmbito, esPersonal: ambito === 'personal' }}>
+    <AmbitoContext.Provider value={{ ambito, setAmbito, esPersonal, ownerId, setOwnerId, esDueno }}>
       {children}
     </AmbitoContext.Provider>
   );

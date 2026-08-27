@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTag, faFlag, faChartLine, faUser, faBuilding } from '@fortawesome/free-solid-svg-icons';
+import { faTag, faFlag, faChartLine, faUser, faBuilding, faUsers } from '@fortawesome/free-solid-svg-icons';
 import { DndContext, closestCenter, DragOverlay } from '@dnd-kit/core';
 import { SortableContext, arrayMove, rectSortingStrategy } from '@dnd-kit/sortable';
 import AppHeader from '../../../components/AppHeader';
@@ -13,6 +13,9 @@ import CreateCategoryButton from '../components/CreateCategoryButton';
 import CategoryForm from '../components/CategoryForm';
 import CategoryCard from '../components/CategoryCard';
 import SortableCategoryCard from '../components/SortableCategoryCard';
+import EquipoModal from '../components/EquipoModal';
+import SelectorTablero from '../components/SelectorTablero';
+import usePermisosTablero from '../hooks/usePermisosTablero';
 import useCategories from '../hooks/useCategories';
 import useSearchSort from '../../../hooks/useSearchSort';
 import useDragSensors from '../../../hooks/useDragSensors';
@@ -23,8 +26,10 @@ import { useEstadosPrioridades } from '../contexts/EstadosPrioridadesContext';
 
 function Tablero() {
   const navigate = useNavigate();
-  const { esPersonal } = useAmbito();
+  const { esPersonal, esDueno } = useAmbito();
+  const { puedeGestionarEquipo } = usePermisosTablero();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isEquipoOpen, setIsEquipoOpen] = useState(false);
   const [activeCategory, setActiveCategory] = useState(null);
   const [searchParams, setSearchParams] = useSearchParams();
   const [autoEditId] = useState(() => searchParams.get('editar'));
@@ -71,28 +76,45 @@ function Tablero() {
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-[0.5em]">
             <h1 className="text-[0.9em] sm:text-[1.05em] font-semibold font-poppins text-cuarto tracking-tight truncate">
-              {esPersonal ? 'Mi tablero' : 'Tablero de Requerimientos'}
+              {!esPersonal ? 'Tablero de Requerimientos' : esDueno ? 'Mi tablero' : 'Tablero compartido'}
             </h1>
             {esPersonal && (
-              <span className="inline-flex items-center gap-[0.35em] px-[0.6em] py-[0.15em] rounded-full bg-segundo/15 border border-segundo/30 text-segundo text-[0.7em] font-poppins font-medium flex-shrink-0">
-                <FontAwesomeIcon icon={faUser} className="text-[0.7em]" />
-                Personal
+              <span className={`inline-flex items-center gap-[0.35em] px-[0.6em] py-[0.15em] rounded-full text-[0.7em] font-poppins font-medium flex-shrink-0 border ${esDueno ? 'bg-segundo/15 border-segundo/30 text-segundo' : 'bg-tercero/15 border-tercero/30 text-tercero'}`}>
+                <FontAwesomeIcon icon={esDueno ? faUser : faUsers} className="text-[0.7em]" />
+                {esDueno ? 'Personal' : 'Colaborador'}
               </span>
             )}
           </div>
           <p className="text-[0.75em] text-cuarto/60 mt-[0.1em] hidden sm:block">
-            {esPersonal ? 'Tu espacio privado, solo tú lo ves' : 'Organiza y gestiona tus requerimientos por categorías'}
+            {!esPersonal
+              ? 'Organiza y gestiona tus requerimientos por categorías'
+              : esDueno
+                ? 'Tu espacio privado, solo quien invites lo ve'
+                : 'Colaboras aquí: solo puedes editar lo que tú creas'}
           </p>
         </div>
         {esPersonal ? (
-          <button
-            onClick={() => navigate('/tablero')}
-            aria-label="Volver al tablero de la empresa"
-            className="flex items-center gap-[0.4em] px-[0.75em] h-[2.25em] sm:h-[2.5em] rounded-[0.5em] flex-shrink-0 text-cuarto/60 font-poppins font-medium text-[0.8em] sm:text-[0.875em] whitespace-nowrap border border-cuarto/10 hover:border-segundo/40 hover:text-segundo transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-segundo/50"
-          >
-            <FontAwesomeIcon icon={faBuilding} className="text-[0.85em]" />
-            <span className="hidden sm:inline">Tablero empresa</span>
-          </button>
+          <>
+            <SelectorTablero />
+            {puedeGestionarEquipo && (
+              <button
+                onClick={() => setIsEquipoOpen(true)}
+                aria-label="Gestionar mi equipo"
+                className="flex items-center gap-[0.4em] px-[0.75em] h-[2.25em] sm:h-[2.5em] rounded-[0.5em] flex-shrink-0 text-cuarto/60 font-poppins font-medium text-[0.8em] sm:text-[0.875em] whitespace-nowrap border border-cuarto/10 hover:border-segundo/40 hover:text-segundo transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-segundo/50"
+              >
+                <FontAwesomeIcon icon={faUsers} className="text-[0.85em]" />
+                <span className="hidden sm:inline">Equipo</span>
+              </button>
+            )}
+            <button
+              onClick={() => navigate('/tablero')}
+              aria-label="Volver al tablero de la empresa"
+              className="flex items-center gap-[0.4em] px-[0.75em] h-[2.25em] sm:h-[2.5em] rounded-[0.5em] flex-shrink-0 text-cuarto/60 font-poppins font-medium text-[0.8em] sm:text-[0.875em] whitespace-nowrap border border-cuarto/10 hover:border-segundo/40 hover:text-segundo transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-segundo/50"
+            >
+              <FontAwesomeIcon icon={faBuilding} className="text-[0.85em]" />
+              <span className="hidden sm:inline">Empresa</span>
+            </button>
+          </>
         ) : (
           <>
             <button
@@ -203,6 +225,8 @@ function Tablero() {
         onCancel={cancelRemove}
         onConfirm={confirmRemove}
       />
+
+      <EquipoModal isOpen={isEquipoOpen} onClose={() => setIsEquipoOpen(false)} />
     </div>
   );
 }

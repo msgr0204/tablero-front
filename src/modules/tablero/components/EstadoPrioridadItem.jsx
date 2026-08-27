@@ -7,11 +7,13 @@ import Badge from '../../../components/Badge';
 import ConfirmDiscardModal from '../../../components/ConfirmDiscardModal';
 import ConfirmDeleteModal from '../../../components/ConfirmDeleteModal';
 import useIsTouchDevice from '../../../hooks/useIsTouchDevice';
+import usePermisosTablero from '../hooks/usePermisosTablero';
 
 const DEFAULT_COLOR = '#38BDF8';
 
 function EstadoPrioridadItem({ item, isEstado, onUpdate, onRemove, nombreEntidad }) {
   const isTouch = useIsTouchDevice();
+  const { puedeGestionarCatalogo } = usePermisosTablero();
   const [editing, setEditing] = useState(false);
   const [label, setLabel] = useState(item.label);
   const [color, setColor] = useState(item.color?.startsWith('#') ? item.color : DEFAULT_COLOR);
@@ -98,22 +100,24 @@ function EstadoPrioridadItem({ item, isEstado, onUpdate, onRemove, nombreEntidad
       className="flex flex-col gap-[0.5em] bg-primero-claro border border-cuarto/10 rounded-[0.6em] px-[0.85em] py-[0.7em] group"
     >
       <div className="flex items-center gap-[0.6em] flex-wrap">
-        <div
-          ref={setActivatorNodeRef}
-          {...attributes}
-          {...listeners}
-          aria-label="Arrastrar"
-          style={{ touchAction: 'none' }}
-          className={[
-            'flex items-center justify-center w-[1.75em] h-[1.75em] rounded-[0.4em] flex-shrink-0',
-            'text-cuarto/30 hover:text-segundo/60 hover:bg-segundo/10',
-            'transition-all duration-200 cursor-grab active:cursor-grabbing',
-            'focus:outline-none focus-visible:ring-2 focus-visible:ring-segundo/50',
-            isTouch ? 'opacity-100' : 'opacity-0 group-hover:opacity-100',
-          ].join(' ')}
-        >
-          <FontAwesomeIcon icon={faGripVertical} className="text-[0.75em]" />
-        </div>
+        {puedeGestionarCatalogo && (
+          <div
+            ref={setActivatorNodeRef}
+            {...attributes}
+            {...listeners}
+            aria-label="Arrastrar"
+            style={{ touchAction: 'none' }}
+            className={[
+              'flex items-center justify-center w-[1.75em] h-[1.75em] rounded-[0.4em] flex-shrink-0',
+              'text-cuarto/30 hover:text-segundo/60 hover:bg-segundo/10',
+              'transition-all duration-200 cursor-grab active:cursor-grabbing',
+              'focus:outline-none focus-visible:ring-2 focus-visible:ring-segundo/50',
+              isTouch ? 'opacity-100' : 'opacity-0 group-hover:opacity-100',
+            ].join(' ')}
+          >
+            <FontAwesomeIcon icon={faGripVertical} className="text-[0.75em]" />
+          </div>
+        )}
 
         <span className="text-[0.75em] font-mono text-cuarto/30 w-[6em] truncate flex-shrink-0">{item.value}</span>
 
@@ -124,20 +128,24 @@ function EstadoPrioridadItem({ item, isEstado, onUpdate, onRemove, nombreEntidad
               <span className="text-[0.75em] text-segundo/60 font-roboto italic">Estado de cierre</span>
             )}
             <div className="flex-1" />
-            <button
-              onClick={() => setEditing(true)}
-              aria-label="Editar"
-              className="w-[2em] h-[2em] flex items-center justify-center rounded-[0.5em] text-cuarto/40 hover:text-segundo hover:bg-segundo/10 transition-all duration-200 focus:outline-none flex-shrink-0"
-            >
-              <FontAwesomeIcon icon={faPen} className="text-[0.8em]" />
-            </button>
-            <button
-              onClick={() => setConfirmingDelete(true)}
-              aria-label="Eliminar"
-              className="w-[2em] h-[2em] flex items-center justify-center rounded-[0.5em] text-quinto/40 hover:text-quinto-claro hover:bg-quinto/10 transition-all duration-200 focus:outline-none flex-shrink-0"
-            >
-              <FontAwesomeIcon icon={faTrash} className="text-[0.8em]" />
-            </button>
+            {puedeGestionarCatalogo && (
+              <>
+                <button
+                  onClick={() => setEditing(true)}
+                  aria-label="Editar"
+                  className="w-[2em] h-[2em] flex items-center justify-center rounded-[0.5em] text-cuarto/40 hover:text-segundo hover:bg-segundo/10 transition-all duration-200 focus:outline-none flex-shrink-0"
+                >
+                  <FontAwesomeIcon icon={faPen} className="text-[0.8em]" />
+                </button>
+                <button
+                  onClick={() => setConfirmingDelete(true)}
+                  aria-label="Eliminar"
+                  className="w-[2em] h-[2em] flex items-center justify-center rounded-[0.5em] text-quinto/40 hover:text-quinto-claro hover:bg-quinto/10 transition-all duration-200 focus:outline-none flex-shrink-0"
+                >
+                  <FontAwesomeIcon icon={faTrash} className="text-[0.8em]" />
+                </button>
+              </>
+            )}
           </>
         ) : (
           <div className="flex-1 flex items-center gap-[0.5em] flex-wrap">

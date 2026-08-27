@@ -13,13 +13,18 @@ let inicializacionPersonal = null;
 // personal, además asegura que el catálogo personal exista (clonado de la
 // empresa la primera vez) antes de mostrar el tablero.
 function AmbitoScope({ ambito, inicializar = false, children }) {
-  const { ambito: actual, setAmbito } = useAmbito();
+  const { ambito: actual, setAmbito, ownerId, setOwnerId } = useAmbito();
   const [listo, setListo] = useState(!inicializar && actual === ambito);
 
   useEffect(() => {
     let vigente = true;
     if (actual !== ambito) {
       setAmbito(ambito);
+    }
+    // Al entrar por la ruta base del tablero personal (la que inicializa), es
+    // MI tablero: limpio cualquier owner externo que hubiera quedado del selector.
+    if (inicializar && ownerId) {
+      setOwnerId(null);
     }
     if (!inicializar) {
       setListo(true);
@@ -34,7 +39,7 @@ function AmbitoScope({ ambito, inicializar = false, children }) {
     }
     inicializacionPersonal.finally(() => { if (vigente) setListo(true); });
     return () => { vigente = false; };
-  }, [ambito, actual, inicializar, setAmbito]);
+  }, [ambito, actual, inicializar, setAmbito, ownerId, setOwnerId]);
 
   if (!listo) {
     return (

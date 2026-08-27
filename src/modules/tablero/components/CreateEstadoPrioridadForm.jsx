@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
+import usePermisosTablero from '../hooks/usePermisosTablero';
 
 const DEFAULT_COLOR = '#38BDF8';
 
 function CreateEstadoPrioridadForm({ isEstado, onCreate, placeholder }) {
+  const { puedeGestionarCatalogo } = usePermisosTablero();
   const [label, setLabel] = useState('');
   const [color, setColor] = useState(DEFAULT_COLOR);
   const [esEstadoFinal, setEsEstadoFinal] = useState(false);
@@ -29,6 +31,8 @@ function CreateEstadoPrioridadForm({ isEstado, onCreate, placeholder }) {
       setLoading(false);
     }
   };
+
+  if (!puedeGestionarCatalogo) return null;
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-[0.5em] bg-primero-claro/40 border border-dashed border-cuarto/20 rounded-[0.6em] px-[0.85em] py-[0.7em]">

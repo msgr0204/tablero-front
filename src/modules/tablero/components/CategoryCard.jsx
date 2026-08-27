@@ -8,12 +8,15 @@ import ConfirmDiscardModal from '../../../components/ConfirmDiscardModal';
 import useIsTouchDevice from '../../../hooks/useIsTouchDevice';
 import { useEstadosPrioridades } from '../contexts/EstadosPrioridadesContext';
 import useTableroBase from '../hooks/useTableroBase';
+import usePermisosTablero from '../hooks/usePermisosTablero';
 import { formatearFecha, formatearFechaHora } from '../../../lib/formatFecha';
 
 function CategoryCard({ category, onUpdate, onRemove, dragHandle, autoEdit, onAutoEditDone }) {
   const navigate = useNavigate();
   const base = useTableroBase();
   const { esEstadoFinal, getEstado, getPrioridad, estados, prioridades } = useEstadosPrioridades();
+  const { puedeModificarItem } = usePermisosTablero();
+  const puedeEditar = puedeModificarItem(category);
   const cardRef = useRef(null);
   const [editing, setEditing] = useState(autoEdit ?? false);
   const [nombre, setNombre] = useState(category.nombre);
@@ -113,6 +116,7 @@ function CategoryCard({ category, onUpdate, onRemove, dragHandle, autoEdit, onAu
         {!editing ? (
           <ViewMode
             category={category}
+            puedeEditar={puedeEditar}
             onEdit={handleEdit}
             onRemove={onRemove}
             dragHandle={dragHandle}
@@ -152,7 +156,7 @@ function CategoryCard({ category, onUpdate, onRemove, dragHandle, autoEdit, onAu
   );
 }
 
-function ViewMode({ category, onEdit, onRemove, dragHandle, getEstado, getPrioridad }) {
+function ViewMode({ category, puedeEditar, onEdit, onRemove, dragHandle, getEstado, getPrioridad }) {
   const isTouch = useIsTouchDevice();
   const visibilityClass = isTouch ? 'opacity-100' : 'opacity-0 group-hover:opacity-100';
 
@@ -167,20 +171,24 @@ function ViewMode({ category, onEdit, onRemove, dragHandle, getEstado, getPriori
           <Badge config={getPrioridad(category.prioridad)} />
         </div>
         <div className="flex items-center gap-[0.1em] flex-shrink-0">
-          <button
-            onClick={onEdit}
-            aria-label="Editar categoría"
-            className={`w-[1.75em] h-[1.75em] flex items-center justify-center rounded-[0.4em] ${visibilityClass} focus:opacity-100 text-cuarto/40 hover:text-segundo hover:bg-segundo/10 transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-segundo/50`}
-          >
-            <FontAwesomeIcon icon={faPen} className="text-[0.75em]" />
-          </button>
-          <button
-            onClick={(e) => { e.stopPropagation(); onRemove(category.id); }}
-            aria-label="Eliminar categoría"
-            className={`w-[1.75em] h-[1.75em] flex items-center justify-center rounded-[0.4em] ${visibilityClass} focus:opacity-100 text-quinto/40 hover:text-quinto-claro hover:bg-quinto/10 transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-quinto/50`}
-          >
-            <FontAwesomeIcon icon={faTrash} className="text-[0.75em]" />
-          </button>
+          {puedeEditar && (
+            <>
+              <button
+                onClick={onEdit}
+                aria-label="Editar categoría"
+                className={`w-[1.75em] h-[1.75em] flex items-center justify-center rounded-[0.4em] ${visibilityClass} focus:opacity-100 text-cuarto/40 hover:text-segundo hover:bg-segundo/10 transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-segundo/50`}
+              >
+                <FontAwesomeIcon icon={faPen} className="text-[0.75em]" />
+              </button>
+              <button
+                onClick={(e) => { e.stopPropagation(); onRemove(category.id); }}
+                aria-label="Eliminar categoría"
+                className={`w-[1.75em] h-[1.75em] flex items-center justify-center rounded-[0.4em] ${visibilityClass} focus:opacity-100 text-quinto/40 hover:text-quinto-claro hover:bg-quinto/10 transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-quinto/50`}
+              >
+                <FontAwesomeIcon icon={faTrash} className="text-[0.75em]" />
+              </button>
+            </>
+          )}
           {dragHandle ?? (
             <span className={`w-[1.75em] h-[1.75em] flex items-center justify-center rounded-[0.4em] text-cuarto/20 ${visibilityClass} transition-all duration-200 cursor-grab`}>
               <FontAwesomeIcon icon={faGripVertical} className="text-[0.75em]" />

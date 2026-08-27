@@ -19,13 +19,14 @@ import { BrandingProvider } from "./context/BrandingContext";
 import { AmbitoProvider, useAmbito } from "./context/AmbitoContext";
 import { EstadosPrioridadesProvider } from "./modules/tablero/contexts/EstadosPrioridadesContext";
 
-// El catálogo (estados/prioridades/tipos) se remonta cuando cambia el ámbito
-// (key={ambito}) para que nunca queden en memoria los del otro tablero.
+// El catálogo y las páginas se remontan cuando cambia el ámbito o el tablero
+// que se está viendo (key = ambito + owner), para que nunca queden en memoria
+// datos del otro tablero al alternar entre el propio y uno compartido.
 function TableroProviders({ children }) {
-    const { ambito } = useAmbito();
+    const { ambito, ownerId } = useAmbito();
     return (
         <BrandingProvider>
-            <EstadosPrioridadesProvider key={ambito}>
+            <EstadosPrioridadesProvider key={`${ambito}:${ownerId ?? 'propio'}`}>
                 {children}
             </EstadosPrioridadesProvider>
         </BrandingProvider>

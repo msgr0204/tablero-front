@@ -6,6 +6,7 @@ import ModuleInfoModal from './ModuleInfoModal';
 import useIsTouchDevice from '../../../hooks/useIsTouchDevice';
 import useDraft from '../../../hooks/useDraft';
 import { useEstadosPrioridades } from '../contexts/EstadosPrioridadesContext';
+import usePermisosTablero from '../hooks/usePermisosTablero';
 import { formatearFecha } from '../../../lib/formatFecha';
 
 // Un requerimiento sin prioridad, o con una prioridad ya inexistente, va al
@@ -21,6 +22,8 @@ function ordenarPorPrioridad(reqs, getPrioridad) {
 
 function ModuleCard({ module, onView, onEdit, onRemove, dragHandle }) {
   const { getEstado, getPrioridad } = useEstadosPrioridades();
+  const { puedeModificarItem } = usePermisosTablero();
+  const puedeEditar = puedeModificarItem(module);
   const isTouch = useIsTouchDevice();
   const [infoOpen, setInfoOpen] = useState(false);
   const [porPrioridad, setPorPrioridad] = useDraft(`modcard_prio_${module.id}`, false);
@@ -55,20 +58,24 @@ function ModuleCard({ module, onView, onEdit, onRemove, dragHandle }) {
             >
               <FontAwesomeIcon icon={faCircleInfo} className="text-[0.75em]" />
             </button>
-            <button
-              onClick={(e) => { e.stopPropagation(); onEdit(module); }}
-              aria-label="Editar módulo"
-              className={`w-[1.75em] h-[1.75em] flex items-center justify-center rounded-[0.4em] ${visibilityClass} focus:opacity-100 text-cuarto/40 hover:text-segundo hover:bg-segundo/10 transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-segundo/50`}
-            >
-              <FontAwesomeIcon icon={faPen} className="text-[0.75em]" />
-            </button>
-            <button
-              onClick={(e) => { e.stopPropagation(); onRemove(module.id); }}
-              aria-label="Eliminar módulo"
-              className={`w-[1.75em] h-[1.75em] flex items-center justify-center rounded-[0.4em] ${visibilityClass} focus:opacity-100 text-quinto/40 hover:text-quinto-claro hover:bg-quinto/10 transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-quinto/50`}
-            >
-              <FontAwesomeIcon icon={faTrash} className="text-[0.75em]" />
-            </button>
+            {puedeEditar && (
+              <>
+                <button
+                  onClick={(e) => { e.stopPropagation(); onEdit(module); }}
+                  aria-label="Editar módulo"
+                  className={`w-[1.75em] h-[1.75em] flex items-center justify-center rounded-[0.4em] ${visibilityClass} focus:opacity-100 text-cuarto/40 hover:text-segundo hover:bg-segundo/10 transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-segundo/50`}
+                >
+                  <FontAwesomeIcon icon={faPen} className="text-[0.75em]" />
+                </button>
+                <button
+                  onClick={(e) => { e.stopPropagation(); onRemove(module.id); }}
+                  aria-label="Eliminar módulo"
+                  className={`w-[1.75em] h-[1.75em] flex items-center justify-center rounded-[0.4em] ${visibilityClass} focus:opacity-100 text-quinto/40 hover:text-quinto-claro hover:bg-quinto/10 transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-quinto/50`}
+                >
+                  <FontAwesomeIcon icon={faTrash} className="text-[0.75em]" />
+                </button>
+              </>
+            )}
             {dragHandle}
           </div>
         </div>

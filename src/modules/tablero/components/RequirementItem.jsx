@@ -10,11 +10,14 @@ import ObservationList from './ObservationList';
 import ConfirmDiscardModal from '../../../components/ConfirmDiscardModal';
 import useIsTouchDevice from '../../../hooks/useIsTouchDevice';
 import { useEstadosPrioridades } from '../contexts/EstadosPrioridadesContext';
+import usePermisosTablero from '../hooks/usePermisosTablero';
 import { formatearFecha, formatearFechaHora } from '../../../lib/formatFecha';
 
 function RequirementItem({ req, index, onUpdate, onRemove, onAddObs, onToggle, selected, onSelect }) {
   const isTouch = useIsTouchDevice();
   const { getEstado, getPrioridad, getTipo, esEstadoFinal } = useEstadosPrioridades();
+  const { puedeModificarItem, puedeMarcarFinal } = usePermisosTablero();
+  const puedeEditar = puedeModificarItem(req);
   const [editing, setEditing] = useState(false);
   const [texto, setTexto] = useState(req.texto);
   const [estado, setEstado] = useState(req.estado ?? '');
@@ -101,9 +104,14 @@ function RequirementItem({ req, index, onUpdate, onRemove, onAddObs, onToggle, s
     <li ref={setNodeRef} style={style} className="flex flex-col gap-[0.5em] group/req">
       <div className={`flex items-center gap-[0.6em] border rounded-[0.6em] px-[0.85em] py-[0.7em] transition-colors duration-200 min-w-0 ${selected ? 'bg-segundo/10 border-segundo/40' : 'bg-primero/40 border-cuarto/10 hover:border-cuarto/20'}`}>
         <button
-          onClick={() => onToggle(req.id, true)}
+          onClick={() => puedeMarcarFinal && onToggle(req.id, true)}
+          disabled={!puedeMarcarFinal}
           aria-label="Marcar como completado"
-          className="w-[1.4em] h-[1.4em] rounded-full border-2 border-cuarto/25 hover:border-segundo hover:bg-segundo/10 transition-all duration-200 flex-shrink-0 focus:outline-none"
+          title={puedeMarcarFinal ? undefined : 'Solo el dueño puede completar'}
+          className={[
+            'w-[1.4em] h-[1.4em] rounded-full border-2 border-cuarto/25 transition-all duration-200 flex-shrink-0 focus:outline-none',
+            puedeMarcarFinal ? 'hover:border-segundo hover:bg-segundo/10' : 'opacity-40 cursor-not-allowed',
+          ].join(' ')}
         />
         <span className="text-[0.8em] text-segundo/40 font-poppins font-semibold w-[1.5em] flex-shrink-0 tabular-nums">
           {String(index + 1).padStart(2, '0')}
@@ -162,20 +170,24 @@ function RequirementItem({ req, index, onUpdate, onRemove, onAddObs, onToggle, s
             </>
           ) : (
             <>
-              <button
-                onClick={startEdit}
-                aria-label="Editar requerimiento"
-                className={`${isTouch ? 'opacity-100' : 'opacity-0 group-hover/req:opacity-100'} w-[1.75em] h-[1.75em] flex items-center justify-center rounded-[0.4em] text-cuarto/30 hover:text-segundo hover:bg-segundo/10 transition-all duration-200 focus:outline-none focus:opacity-100`}
-              >
-                <FontAwesomeIcon icon={faPen} className="text-[0.8em]" />
-              </button>
-              <button
-                onClick={() => onRemove(req.id)}
-                aria-label="Eliminar requerimiento"
-                className={`${isTouch ? 'opacity-100' : 'opacity-0 group-hover/req:opacity-100'} w-[1.75em] h-[1.75em] flex items-center justify-center rounded-[0.4em] text-quinto/40 hover:text-quinto-claro hover:bg-quinto/10 transition-all duration-200 focus:outline-none focus:opacity-100`}
-              >
-                <FontAwesomeIcon icon={faTrash} className="text-[0.8em]" />
-              </button>
+              {puedeEditar && (
+                <>
+                  <button
+                    onClick={startEdit}
+                    aria-label="Editar requerimiento"
+                    className={`${isTouch ? 'opacity-100' : 'opacity-0 group-hover/req:opacity-100'} w-[1.75em] h-[1.75em] flex items-center justify-center rounded-[0.4em] text-cuarto/30 hover:text-segundo hover:bg-segundo/10 transition-all duration-200 focus:outline-none focus:opacity-100`}
+                  >
+                    <FontAwesomeIcon icon={faPen} className="text-[0.8em]" />
+                  </button>
+                  <button
+                    onClick={() => onRemove(req.id)}
+                    aria-label="Eliminar requerimiento"
+                    className={`${isTouch ? 'opacity-100' : 'opacity-0 group-hover/req:opacity-100'} w-[1.75em] h-[1.75em] flex items-center justify-center rounded-[0.4em] text-quinto/40 hover:text-quinto-claro hover:bg-quinto/10 transition-all duration-200 focus:outline-none focus:opacity-100`}
+                  >
+                    <FontAwesomeIcon icon={faTrash} className="text-[0.8em]" />
+                  </button>
+                </>
+              )}
               <div
                 ref={setActivatorNodeRef}
                 {...attributes}
