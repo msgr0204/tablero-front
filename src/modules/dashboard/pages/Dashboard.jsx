@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowLeft, faLayerGroup } from '@fortawesome/free-solid-svg-icons';
 import AppHeader from '../../../components/AppHeader';
+import { PanelesSkeleton } from '../../../components/Skeleton';
 import FilterDropdown from '../../../components/FilterDropdown';
 import ResumenCards from '../components/ResumenCards';
 import DistribucionChart from '../components/DistribucionChart';
@@ -54,9 +55,7 @@ function Dashboard() {
 
       <main className="px-[1em] sm:px-[1.5em] py-[1.25em] sm:py-[1.75em] max-w-[90em] mx-auto flex flex-col gap-[1.5em]">
         {loading && !data ? (
-          <div className="flex items-center justify-center py-[6em]">
-            <div className="w-[1.5em] h-[1.5em] border-2 border-segundo/30 border-t-segundo rounded-full animate-spin" />
-          </div>
+          <PanelesSkeleton etiqueta="Cargando el dashboard" />
         ) : data ? (
           <>
             <ResumenCards resumen={data.resumen} />

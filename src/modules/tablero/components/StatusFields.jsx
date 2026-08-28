@@ -12,7 +12,7 @@ function StatusFields({
   const isFinal = estado && esEstadoFinal(estado);
 
   return (
-    <div className={`grid ${conTipo ? 'grid-cols-3' : 'grid-cols-2'} gap-[0.75em]`}>
+    <div className={`grid grid-cols-2 gap-[0.75em] ${conTipo ? 'sm:grid-cols-3' : ''}`}>
       <div className="flex flex-col gap-[0.3em]">
         <label className="text-[0.75em] text-cuarto/50 font-roboto">Estado</label>
         <Select

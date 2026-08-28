@@ -73,11 +73,11 @@ function NotificationBell() {
         onClick={handleToggle}
         aria-label="Notificaciones"
         aria-expanded={open}
-        className="relative flex items-center justify-center w-[2.25em] h-[2.25em] rounded-[0.5em] text-cuarto/60 hover:text-segundo hover:bg-cuarto/10 transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-segundo/50"
+        className="relative flex items-center justify-center w-[2.5em] h-[2.5em] rounded-[0.6em] text-cuarto/70 hover:text-segundo hover:bg-cuarto/10 transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-segundo/50"
       >
-        <FontAwesomeIcon icon={faBell} className="text-[0.95em]" />
+        <FontAwesomeIcon icon={faBell} className="text-[1.3em]" />
         {noLeidas > 0 && (
-          <span className="absolute top-[0.1em] right-[0.1em] min-w-[1.1em] h-[1.1em] px-[0.2em] flex items-center justify-center rounded-full bg-quinto text-[0.6em] font-bold font-poppins text-cuarto leading-none">
+          <span className="absolute -top-[0.05em] -right-[0.05em] min-w-[1.25em] h-[1.25em] px-[0.25em] flex items-center justify-center rounded-full bg-quinto text-[0.62em] font-bold font-poppins text-primero-oscuro leading-none">
             {noLeidas > 9 ? '9+' : noLeidas}
           </span>
         )}

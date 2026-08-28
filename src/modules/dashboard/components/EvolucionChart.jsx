@@ -1,4 +1,6 @@
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend } from 'recharts';
+import { faChartLine } from '@fortawesome/free-solid-svg-icons';
+import EmptyState from '../../../components/EmptyState';
 
 function formatSemana(iso) {
   return new Date(iso).toLocaleDateString('es-CO', { day: '2-digit', month: '2-digit' });
@@ -11,9 +13,12 @@ function EvolucionChart({ datos }) {
     <div className="bg-primero-claro border border-cuarto/10 rounded-[1em] p-[1.25em] flex flex-col gap-[1em]">
       <h3 className="text-[0.85em] font-semibold text-cuarto font-poppins uppercase tracking-wider">Evolución semanal</h3>
       {chartData.length === 0 ? (
-        <div className="h-[16em] flex items-center justify-center">
-          <p className="text-[0.85em] text-cuarto/25 italic font-roboto">Aún no hay suficiente actividad registrada</p>
-        </div>
+        <EmptyState
+          icon={faChartLine}
+          titulo="Aún no hay actividad registrada"
+          descripcion="A medida que crees y completes requerimientos, aquí verás su evolución semana a semana."
+          altura="16em"
+        />
       ) : (
         <ResponsiveContainer width="100%" height={260}>
           <AreaChart data={chartData}>

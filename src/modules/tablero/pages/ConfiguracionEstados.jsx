@@ -4,6 +4,7 @@ import { faArrowLeft, faListCheck, faFlag, faLayerGroup } from '@fortawesome/fre
 import { DndContext, closestCenter } from '@dnd-kit/core';
 import { SortableContext, arrayMove, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import AppHeader from '../../../components/AppHeader';
+import { ListaSkeleton } from '../../../components/Skeleton';
 import EstadoPrioridadItem from '../components/EstadoPrioridadItem';
 import CreateEstadoPrioridadForm from '../components/CreateEstadoPrioridadForm';
 import useDragSensors from '../../../hooks/useDragSensors';
@@ -68,9 +69,7 @@ function ConfiguracionEstados() {
 
       <main className="px-[1em] sm:px-[1.5em] py-[1em] sm:py-[1.5em] max-w-[48em] mx-auto flex flex-col gap-[2em]">
         {loading ? (
-          <div className="flex items-center justify-center py-[6em]">
-            <div className="w-[1.5em] h-[1.5em] border-2 border-segundo/30 border-t-segundo rounded-full animate-spin" />
-          </div>
+          <ListaSkeleton etiqueta="Cargando la configuración" />
         ) : (
           <>
             <section className="flex flex-col gap-[0.75em]">

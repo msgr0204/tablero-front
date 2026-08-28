@@ -85,17 +85,14 @@ function UserMenu() {
         onClick={handleToggle}
         aria-label="Menú de usuario"
         aria-expanded={open}
-        className="flex items-center gap-[0.5em] h-[2.25em] px-[0.5em] rounded-[0.5em] hover:bg-cuarto/10 transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-segundo/50"
+        className="flex items-center gap-[0.5em] rounded-full p-[0.15em] hover:bg-cuarto/10 transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-segundo/60"
       >
-        <div className="w-[2em] h-[2em] rounded-full bg-segundo/20 border border-segundo/40 flex items-center justify-center flex-shrink-0">
-          <span className="text-[0.75em] font-bold font-poppins text-segundo">{iniciales}</span>
+        <div className="w-[2.6em] h-[2.6em] rounded-full bg-segundo/20 border-2 border-segundo/50 flex items-center justify-center flex-shrink-0">
+          <span className="text-[0.85em] font-bold font-poppins text-segundo">{iniciales}</span>
         </div>
-        <span className="text-[0.8em] font-medium text-cuarto/70 font-roboto hidden sm:block max-w-[7em] truncate">
-          {nombre}
-        </span>
         <FontAwesomeIcon
           icon={faChevronDown}
-          className={`text-cuarto/30 text-[0.7em] transition-transform duration-200 hidden sm:block ${open ? 'rotate-180' : ''}`}
+          className={`text-cuarto/30 text-[0.7em] transition-transform duration-200 hidden sm:block mr-[0.35em] ${open ? 'rotate-180' : ''}`}
         />
       </button>
 

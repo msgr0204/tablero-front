@@ -5,11 +5,11 @@ import { useAmbito } from '../../../context/AmbitoContext';
 // respetar el tablero para no saltar de uno a otro.
 //   - empresa           -> /tablero
 //   - personal propio   -> /tablero-personal
-//   - personal de otro  -> /tablero-personal/de/:ownerId
+//   - tablero de equipo -> /equipos/:ownerId
 function useTableroBase() {
   const { esPersonal, ownerId } = useAmbito();
   if (!esPersonal) return '/tablero';
-  if (ownerId) return `/tablero-personal/de/${ownerId}`;
+  if (ownerId) return `/equipos/${ownerId}`;
   return '/tablero-personal';
 }
 

@@ -1,4 +1,6 @@
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
+import { faLayerGroup } from '@fortawesome/free-solid-svg-icons';
+import EmptyState from '../../../components/EmptyState';
 
 function CargaCategoriaChart({ datos }) {
   const chartData = datos.map((d) => ({ nombre: d.nombre, pendientes: d.total - d.completados, completados: d.completados }));
@@ -7,9 +9,12 @@ function CargaCategoriaChart({ datos }) {
     <div className="bg-primero-claro border border-cuarto/10 rounded-[1em] p-[1.25em] flex flex-col gap-[1em]">
       <h3 className="text-[0.85em] font-semibold text-cuarto font-poppins uppercase tracking-wider">Carga por categoría</h3>
       {chartData.length === 0 ? (
-        <div className="h-[16em] flex items-center justify-center">
-          <p className="text-[0.85em] text-cuarto/25 italic font-roboto">Sin categorías aún</p>
-        </div>
+        <EmptyState
+          icon={faLayerGroup}
+          titulo="Sin categorías aún"
+          descripcion="Crea categorías en el tablero para comparar aquí su carga de requerimientos."
+          altura="16em"
+        />
       ) : (
         <ResponsiveContainer width="100%" height={Math.max(160, chartData.length * 48)}>
           <BarChart data={chartData} layout="vertical" margin={{ left: 10, right: 10 }}>

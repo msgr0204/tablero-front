@@ -7,6 +7,7 @@ import Tablero from "./modules/tablero/pages/Tablero";
 import ModulosCategoria from "./modules/tablero/pages/ModulosCategoria";
 import DetalleModulo from "./modules/tablero/pages/DetalleModulo";
 import ConfiguracionEstados from "./modules/tablero/pages/ConfiguracionEstados";
+import Equipos from "./modules/tablero/pages/Equipos";
 import Dashboard from "./modules/dashboard/pages/Dashboard";
 import Metricas from "./modules/metricas/pages/Metricas";
 import GestionUsuarios from "./modules/usuarios/pages/GestionUsuarios";
@@ -89,11 +90,14 @@ function App() {
                         <Route path="/tablero-personal/:categoriaId/modulos/:moduloId" element={<VistaPersonal><DetalleModulo /></VistaPersonal>} />
                         <Route path="/tablero-personal/configuracion-estados" element={<VistaPersonal><ConfiguracionEstados /></VistaPersonal>} />
 
-                        {/* Tablero personal COMPARTIDO por otro usuario (owner en la URL) */}
-                        <Route path="/tablero-personal/de/:ownerId" element={<VistaPersonal><Tablero /></VistaPersonal>} />
-                        <Route path="/tablero-personal/de/:ownerId/:categoriaId/modulos" element={<VistaPersonal><ModulosCategoria /></VistaPersonal>} />
-                        <Route path="/tablero-personal/de/:ownerId/:categoriaId/modulos/:moduloId" element={<VistaPersonal><DetalleModulo /></VistaPersonal>} />
-                        <Route path="/tablero-personal/de/:ownerId/configuracion-estados" element={<VistaPersonal><ConfiguracionEstados /></VistaPersonal>} />
+                        {/* Tableros de equipo: galería de los tableros que me compartieron */}
+                        <Route path="/equipos" element={<VistaEmpresa><Equipos /></VistaEmpresa>} />
+
+                        {/* Entrar a un tablero de equipo (owner en la URL) — reusa las mismas páginas en ámbito personal */}
+                        <Route path="/equipos/:ownerId" element={<VistaPersonal><Tablero /></VistaPersonal>} />
+                        <Route path="/equipos/:ownerId/:categoriaId/modulos" element={<VistaPersonal><ModulosCategoria /></VistaPersonal>} />
+                        <Route path="/equipos/:ownerId/:categoriaId/modulos/:moduloId" element={<VistaPersonal><DetalleModulo /></VistaPersonal>} />
+                        <Route path="/equipos/:ownerId/configuracion-estados" element={<VistaPersonal><ConfiguracionEstados /></VistaPersonal>} />
 
                         <Route path="*" element={<Navigate to="/auth/login" replace />} />
                     </Routes>

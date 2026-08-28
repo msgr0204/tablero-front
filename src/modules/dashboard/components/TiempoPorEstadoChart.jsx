@@ -1,4 +1,6 @@
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Cell } from 'recharts';
+import { faClock } from '@fortawesome/free-solid-svg-icons';
+import EmptyState from '../../../components/EmptyState';
 
 function TiempoPorEstadoChart({ datos }) {
   const conDatos = datos.filter((d) => d.diasPromedio !== null);
@@ -7,9 +9,12 @@ function TiempoPorEstadoChart({ datos }) {
     <div className="bg-primero-claro border border-cuarto/10 rounded-[1em] p-[1.25em] flex flex-col gap-[1em]">
       <h3 className="text-[0.85em] font-semibold text-cuarto font-poppins uppercase tracking-wider">Tiempo promedio por estado</h3>
       {conDatos.length === 0 ? (
-        <div className="h-[16em] flex items-center justify-center">
-          <p className="text-[0.85em] text-cuarto/25 italic font-roboto">Aún no hay suficiente actividad registrada</p>
-        </div>
+        <EmptyState
+          icon={faClock}
+          titulo="Aún no hay suficiente actividad"
+          descripcion="Cuando tus requerimientos avancen entre estados, verás aquí cuánto tardan en cada uno."
+          altura="16em"
+        />
       ) : (
         <ResponsiveContainer width="100%" height={240}>
           <BarChart data={conDatos}>

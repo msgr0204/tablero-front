@@ -1,4 +1,6 @@
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from 'recharts';
+import { faChartPie } from '@fortawesome/free-solid-svg-icons';
+import EmptyState from '../../../components/EmptyState';
 
 function DistribucionChart({ titulo, datos }) {
   const conDatos = datos.filter((d) => d.total > 0);
@@ -7,9 +9,12 @@ function DistribucionChart({ titulo, datos }) {
     <div className="bg-primero-claro border border-cuarto/10 rounded-[1em] p-[1.25em] flex flex-col gap-[1em]">
       <h3 className="text-[0.85em] font-semibold text-cuarto font-poppins uppercase tracking-wider">{titulo}</h3>
       {conDatos.length === 0 ? (
-        <div className="h-[14em] flex items-center justify-center">
-          <p className="text-[0.85em] text-cuarto/25 italic font-roboto">Sin datos aún</p>
-        </div>
+        <EmptyState
+          icon={faChartPie}
+          titulo="Sin datos para mostrar"
+          descripcion={`Cuando tus requerimientos tengan ${titulo.toLowerCase()}, verás aquí su distribución.`}
+          altura="14em"
+        />
       ) : (
         <ResponsiveContainer width="100%" height={220}>
           <PieChart>

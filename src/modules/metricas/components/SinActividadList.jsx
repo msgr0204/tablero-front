@@ -1,5 +1,6 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faMoon } from '@fortawesome/free-solid-svg-icons';
+import { faMoon, faCircleCheck } from '@fortawesome/free-solid-svg-icons';
+import EmptyState from '../../../components/EmptyState';
 
 function diasDesde(iso) {
   const dias = Math.floor((Date.now() - new Date(iso).getTime()) / (1000 * 60 * 60 * 24));
@@ -13,7 +14,11 @@ function SinActividadList({ items }) {
         Sin actividad reciente (7+ días)
       </h3>
       {items.length === 0 ? (
-        <p className="text-[0.85em] text-cuarto/25 italic font-roboto py-[1em] text-center">Todo tiene movimiento reciente</p>
+        <EmptyState
+          icon={faCircleCheck}
+          titulo="Todo tiene movimiento reciente"
+          descripcion="Ningún requerimiento lleva más de 7 días sin cambios."
+        />
       ) : (
         <ul className="flex flex-col gap-[0.5em]">
           {items.map((item) => (

@@ -33,6 +33,28 @@
 }
 
 /*
+  Escalado global por resolución. Toda la app dimensiona en `em`, así que el
+  font-size de la raíz es la única palanca que hace crecer o compactar TODO —
+  texto, espaciados, tarjetas— de una sola vez. Con un valor fijo, la interfaz
+  medía lo mismo en píxeles reales en una laptop de 1366px que en un monitor 4K:
+  minúscula en el grande, apretada en el pequeño.
+
+  clamp(mínimo, preferido, máximo): el término `vw` liga el tamaño al ancho del
+  viewport, con un piso y un techo para que ni se encoja de más en pantallas
+  chicas ni se dispare en ultrawide. Los valores están calibrados suave a
+  propósito: ~14px en laptop pequeña, ~16px en 1080p, ~19px en 4K.
+
+  Solo aplica desde tablet hacia arriba (min-width). En móvil se deja el 16px de
+  siempre: el ancho de un teléfono no debe encoger la tipografía, y 16px además
+  evita el zoom automático de iOS al enfocar inputs.
+*/
+@media (min-width: 48em) {
+  html {
+    font-size: clamp(14px, 0.35vw + 12.5px, 19px);
+  }
+}
+
+/*
   Evita las franjas blancas del navegador al hacer overscroll/rubber-band
   en mobile (iOS/Android): html y body deben tener el mismo fondo que la
   app, no quedar transparentes mostrando el blanco por defecto del navegador.
@@ -57,4 +79,94 @@ html, body {
   select {
     font-size: 16px !important;
   }
+}
+
+/*
+  Esqueletos de carga — barrido de luz.
+
+  El animate-pulse solo variaba la opacidad de un bloque tenue sobre el fondo
+  oscuro: la diferencia de luminancia es tan corta que la animación va de
+  invisible a invisible. Aquí el movimiento es espacial —un destello que cruza
+  la pieza—, que es lo que el ojo detecta de verdad, sin subir el contraste del
+  bloque. El destello se monta con ::after y translateX (compuesto en la GPU,
+  así veinte piezas siguen fluidas en un móvil), no animando background-position
+  (forzaría un repintado por fotograma). Todas comparten la misma animación y
+  por tanto el mismo reloj: el destello cruza como una sola onda, no como ruido.
+*/
+.tq-shimmer {
+  position: relative;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.05);
+  /* isolation mantiene el destello dentro de la pieza con border-radius (Safari). */
+  isolation: isolate;
+}
+
+.tq-shimmer::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  /* Arranca fuera por la izquierda y sale por la derecha; se mueve el doble de
+     su ancho para dejar una pausa entre pasadas. */
+  transform: translateX(-100%);
+  background: linear-gradient(90deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0.03) 35%,
+      rgba(87, 240, 254, 0.10) 50%,
+      rgba(255, 255, 255, 0.03) 65%,
+      transparent 100%);
+  animation: tq-barrido 1.65s ease-in-out infinite;
+}
+
+@keyframes tq-barrido {
+  0% { transform: translateX(-100%); }
+  /* La pausa vive dentro del keyframe: llega al final al 70% y el resto del
+     ciclo está fuera de vista. Con animation-delay la pausa solo ocurriría una
+     vez, antes de la primera pasada. */
+  70%, 100% { transform: translateX(100%); }
+}
+
+/*
+  Entrada retardada del esqueleto completo. Si los datos llegan rápido (caché,
+  red local) el esqueleto no alcanza a hacerse visible y se evita el parpadeo de
+  mostrarlo y esconderlo, que se percibe como un fallo y no como una carga.
+*/
+.tq-esqueleto {
+  animation: tq-esqueleto-entra 0.28s ease-out 0.12s both;
+}
+
+@keyframes tq-esqueleto-entra {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Tres puntos del rótulo de carga: elementos con animación propia, no escritos
+   en el texto (un "Cargando..." con puntos quietos junto a un esqueleto que se
+   mueve se lee como un mensaje congelado). El desfase hace la ola. */
+.tq-puntos {
+  display: inline-flex;
+  align-items: center;
+  gap: 2.5px;
+}
+
+.tq-puntos i {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.4;
+  animation: tq-punto 1.4s ease-in-out infinite;
+}
+
+.tq-puntos i:nth-child(2) { animation-delay: 0.18s; }
+.tq-puntos i:nth-child(3) { animation-delay: 0.36s; }
+
+@keyframes tq-punto {
+  0%, 60%, 100% { opacity: 0.25; }
+  30% { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tq-shimmer::after,
+  .tq-puntos i { animation: none; }
+  .tq-esqueleto { animation: none; }
 }

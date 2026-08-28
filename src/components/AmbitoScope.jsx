@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useAmbito } from '../context/AmbitoContext';
 import tableroPersonalService from '../modules/tablero/services/tableroPersonalService';
+import { TableroPantallaSkeleton } from '../modules/tablero/components/TableroSkeletons';
 
 // La clonación del catálogo personal solo corre una vez por carga de la app.
 // Guardar la promesa fuera de React evita que StrictMode o remontajes por key
@@ -12,7 +13,7 @@ let inicializacionPropia = null;
 // (que hacen fetch al montar). El owner es la fuente de verdad de "qué tablero
 // veo" y viene de la URL:
 //   - /tablero-personal            -> mi tablero (ownerParam undefined)
-//   - /tablero-personal/de/:owner  -> tablero compartido de ese owner
+//   - /equipos/:owner              -> tablero de equipo (compartido) de ese owner
 // Así el tablero activo sobrevive a recargas y no puede ser pisado por un
 // efecto (que era el bug: el scope reseteaba el owner que el selector fijaba).
 function AmbitoScope({ ambito, children }) {
@@ -42,13 +43,7 @@ function AmbitoScope({ ambito, children }) {
     return () => { vigente = false; };
   }, [ambito, actual, ownerObjetivo, ownerId, esPersonalPropio, setAmbito, setOwnerId]);
 
-  if (!listo) {
-    return (
-      <div className="min-h-dvh bg-primero flex items-center justify-center">
-        <div className="w-[1.5em] h-[1.5em] border-2 border-segundo/30 border-t-segundo rounded-full animate-spin" />
-      </div>
-    );
-  }
+  if (!listo) return <TableroPantallaSkeleton />;
 
   return children;
 }

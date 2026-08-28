@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faXmark } from '@fortawesome/free-solid-svg-icons';
 
@@ -13,6 +13,7 @@ const SIZES = {
 
 function Modal({ isOpen, onClose, title, children, size = 'md' }) {
   const overlayRef = useRef(null);
+  const reducirMovimiento = useReducedMotion();
 
   useEffect(() => {
     if (!isOpen) return;
@@ -41,18 +42,18 @@ function Modal({ isOpen, onClose, title, children, size = 'md' }) {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 0.15 }}
-          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center sm:px-[1em] bg-primero-oscuro/70 backdrop-blur-sm"
+          transition={{ duration: 0.15, ease: 'linear' }}
+          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center sm:px-[1em] bg-primero-oscuro/70"
         >
           <motion.div
-            initial={{ opacity: 0, y: 16, scale: 0.98 }}
+            initial={reducirMovimiento ? { opacity: 0 } : { opacity: 0, y: 12, scale: 0.98 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 8, scale: 0.98 }}
-            transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
+            exit={reducirMovimiento ? { opacity: 0 } : { opacity: 0, y: 8, scale: 0.98 }}
+            transition={{ duration: reducirMovimiento ? 0.1 : 0.18, ease: [0.22, 1, 0.36, 1] }}
             className={[
               'w-full relative',
               'bg-primero-fuerte border border-cuarto/10',
-              'rounded-t-[1.25em] sm:rounded-[1.25em] shadow-2xl shadow-primero-oscuro/80',
+              'rounded-t-[1.25em] sm:rounded-[1.25em] shadow-xl shadow-primero-oscuro/50',
               'max-h-[90dvh] flex flex-col',
               SIZES[size],
             ].join(' ')}

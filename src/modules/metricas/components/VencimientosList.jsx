@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTriangleExclamation, faClock } from '@fortawesome/free-solid-svg-icons';
+import { faTriangleExclamation, faClock, faCircleCheck } from '@fortawesome/free-solid-svg-icons';
+import EmptyState from '../../../components/EmptyState';
 
 function formatFecha(iso) {
   return new Date(iso).toLocaleDateString('es-CO', { day: '2-digit', month: '2-digit', year: 'numeric' });
@@ -15,7 +16,11 @@ function VencimientosList({ items }) {
         Vencen en los próximos 7 días
       </h3>
       {items.length === 0 ? (
-        <p className="text-[0.85em] text-cuarto/25 italic font-roboto py-[1em] text-center">Nada por vencer, todo en orden</p>
+        <EmptyState
+          icon={faCircleCheck}
+          titulo="Nada por vencer"
+          descripcion="Ningún requerimiento vence en los próximos 7 días."
+        />
       ) : (
         <ul className="flex flex-col gap-[0.5em]">
           {items.map((item) => (

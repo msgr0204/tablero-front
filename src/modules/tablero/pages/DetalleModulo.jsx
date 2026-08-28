@@ -15,6 +15,7 @@ import ObservationList from '../components/ObservationList';
 import RequirementItem from '../components/RequirementItem';
 import CompletedRequirementItem from '../components/CompletedRequirementItem';
 import RequirementAttachments from '../components/RequirementAttachments';
+import { DetalleModuloSkeleton } from '../components/TableroSkeletons';
 import useModuleDetail from '../hooks/useModuleDetail';
 import usePermisosTablero from '../hooks/usePermisosTablero';
 import useSearchSort from '../../../hooks/useSearchSort';
@@ -56,13 +57,7 @@ function DetalleModulo() {
   const reqs = module?.requerimientos ?? [];
   const { result: filteredReqs, query, setQuery, filters, setFilter, hasActiveFilters } = useSearchSort(reqs, { searchKey: 'texto', persistKey: 'requerimientos' });
 
-  if (loading || !module) {
-    return (
-      <div className="min-h-dvh bg-primero flex items-center justify-center">
-        <div className="w-[1.5em] h-[1.5em] border-2 border-segundo/30 border-t-segundo rounded-full animate-spin" />
-      </div>
-    );
-  }
+  if (loading || !module) return <DetalleModuloSkeleton />;
 
   const isReqFilterActive = query.trim() !== '' || hasActiveFilters;
   const pendientes = filteredReqs.filter((r) => !r.completado);
@@ -141,7 +136,7 @@ function DetalleModulo() {
         </section>
 
         {/* Body: 2 columnas amplias */}
-        <section className="grid grid-cols-1 xl:grid-cols-2 gap-[1.5em]">
+        <section className="grid grid-cols-1 lg:grid-cols-2 gap-[1.5em]">
 
           {/* Columna izquierda: requerimientos */}
           <div className="bg-primero-claro border border-cuarto/10 rounded-[1em] flex flex-col overflow-hidden">
@@ -197,7 +192,7 @@ function DetalleModulo() {
               />
             </div>
 
-            <div className="flex-1 max-h-[40em] overflow-y-auto px-[1.25em] sm:px-[1.5em] py-[1.25em] flex flex-col gap-[1.25em]">
+            <div className="flex-1 lg:max-h-[40em] lg:overflow-y-auto px-[1.25em] sm:px-[1.5em] py-[1.25em] flex flex-col gap-[1.25em]">
               {reqs.length === 0 ? (
                 <div className="flex items-center justify-center h-[8em] border border-dashed border-cuarto/15 rounded-[0.6em]">
                   <p className="text-[0.85em] text-cuarto/25 italic font-roboto">Sin requerimientos</p>
@@ -311,7 +306,7 @@ function DetalleModulo() {
               </button>
             </div>
 
-            <div className="flex-1 max-h-[40em] overflow-y-auto px-[1.25em] sm:px-[1.5em] py-[1.25em]">
+            <div className="flex-1 lg:max-h-[40em] lg:overflow-y-auto px-[1.25em] sm:px-[1.5em] py-[1.25em]">
               {activeTab === 'detalle' ? (
                 selectedReq ? (
                   <div className="flex flex-col gap-[1em]">

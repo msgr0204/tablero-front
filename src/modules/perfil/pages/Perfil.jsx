@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowLeft, faBuilding, faEnvelope, faUserShield } from '@fortawesome/free-solid-svg-icons';
+import { faArrowLeft, faBuilding, faEnvelope, faUserShield, faPhone, faLocationDot, faIdCard } from '@fortawesome/free-solid-svg-icons';
 import AppHeader from '../../../components/AppHeader';
 import { useAuth } from '../../../context/AuthContext';
 import { useBranding } from '../../../context/BrandingContext';
@@ -28,7 +28,7 @@ function Perfil() {
           className="flex items-center gap-[0.5em] text-cuarto/60 hover:text-cuarto text-[0.85em] font-roboto transition-colors"
         >
           <FontAwesomeIcon icon={faArrowLeft} />
-          Volver al tablero
+          <span className="hidden sm:inline">Volver al tablero</span>
         </button>
       </AppHeader>
 
@@ -39,11 +39,17 @@ function Perfil() {
           </div>
 
           <h1 className="text-[1.3em] font-bold font-poppins text-cuarto">{usuario?.nombre}</h1>
+          {usuario?.cargo && (
+            <p className="text-[0.85em] text-segundo/80 font-poppins font-medium mt-[0.25em]">{usuario.cargo}</p>
+          )}
 
           <div className="flex flex-col gap-[0.6em] mt-[1.25em] w-full text-left">
             <DatoFila icon={faEnvelope} label="Correo" valor={usuario?.email} />
             <DatoFila icon={faBuilding} label="Empresa" valor={tenant?.nombre} />
             <DatoFila icon={faUserShield} label="Rol" valor={ROL_LABEL[usuario?.rol] ?? usuario?.rol} />
+            <DatoFila icon={faPhone} label="Teléfono" valor={usuario?.telefono} />
+            <DatoFila icon={faLocationDot} label="Ubicación" valor={usuario?.ubicacion} />
+            <DatoFila icon={faIdCard} label="Documento" valor={usuario?.documento} />
           </div>
         </div>
       </main>

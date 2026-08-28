@@ -13,6 +13,7 @@ import CreateModuleButton from '../components/CreateModuleButton';
 import ModuleForm from '../components/ModuleForm';
 import ModuleCard from '../components/ModuleCard';
 import SortableModuleCard from '../components/SortableModuleCard';
+import { TableroSkeleton } from '../components/TableroSkeletons';
 import useModules from '../hooks/useModules';
 import useCategory from '../hooks/useCategory';
 import useSearchSort from '../../../hooks/useSearchSort';
@@ -99,12 +100,8 @@ function ModulosCategoria() {
         {puedeCrearModulos && <CreateModuleButton onClick={() => setIsCreateOpen(true)} />}
       </AppHeader>
 
-      <main className="px-[1em] sm:px-[1.5em] py-[1em] sm:py-[1.5em]">
-        {loading && (
-          <div className="flex items-center justify-center py-[6em]">
-            <div className="w-[1.5em] h-[1.5em] border-2 border-segundo/30 border-t-segundo rounded-full animate-spin" />
-          </div>
-        )}
+      <main className="px-[1em] sm:px-[1.5em] xl:px-[2em] py-[1em] sm:py-[1.5em]">
+        {loading && <TableroSkeleton etiqueta="Cargando los módulos" />}
 
         {!loading && modules.length === 0 && <EmptyState onAction={() => setIsCreateOpen(true)} puedeCrear={puedeCrearModulos} />}
 
@@ -147,7 +144,7 @@ function ModulosCategoria() {
                   </p>
                 )}
                 <SortableContext items={filteredModules.map((m) => m.id)} strategy={rectSortingStrategy}>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-[0.85em] sm:gap-[1.25em]">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-[0.85em] sm:gap-[1.25em]">
                     {filteredModules.map((mod) => (
                       <SortableModuleCard
                         key={mod.id}
