@@ -27,8 +27,10 @@ function usePermisosTablero() {
   const puedeMarcarFinal = !esPersonal || esDueno;
   const puedeGestionarCatalogo = !esPersonal || esDueno;
   const puedeGestionarEquipo = esPersonal && esDueno;
+  // Marcar público/privado: solo el dueño, solo en su tablero personal.
+  const puedeMarcarVisibilidad = esPersonal && esDueno;
 
-  return { puedeModificarItem, puedeMarcarFinal, puedeGestionarCatalogo, puedeGestionarEquipo };
+  return { puedeModificarItem, puedeMarcarFinal, puedeGestionarCatalogo, puedeGestionarEquipo, puedeMarcarVisibilidad };
 }
 
 export default usePermisosTablero;

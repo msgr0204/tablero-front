@@ -228,6 +228,7 @@ function DetalleModulo() {
                             onToggle={toggleCompletado}
                             selected={selectedReqId === req.id}
                             onSelect={handleSelectReq}
+                            onVisto={fetchModule}
                           />
                         ))}
                       </ul>
@@ -280,6 +281,7 @@ function DetalleModulo() {
                             onToggle={toggleCompletado}
                             selected={selectedReqId === req.id}
                             onSelect={handleSelectReq}
+                            onVisto={fetchModule}
                           />
                         ))}
                       </ul>

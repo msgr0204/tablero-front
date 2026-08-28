@@ -1,10 +1,11 @@
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPen, faTrash, faGripVertical, faCheck, faXmark } from '@fortawesome/free-solid-svg-icons';
+import { faPen, faTrash, faGripVertical, faCheck, faXmark, faLock } from '@fortawesome/free-solid-svg-icons';
 import Badge from '../../../components/Badge';
 import Select from '../../../components/Select';
 import ConfirmDiscardModal from '../../../components/ConfirmDiscardModal';
+import VisibilidadToggle from './VisibilidadToggle';
 import useIsTouchDevice from '../../../hooks/useIsTouchDevice';
 import { useEstadosPrioridades } from '../contexts/EstadosPrioridadesContext';
 import useTableroBase from '../hooks/useTableroBase';
@@ -15,7 +16,7 @@ function CategoryCard({ category, onUpdate, onRemove, dragHandle, autoEdit, onAu
   const navigate = useNavigate();
   const base = useTableroBase();
   const { esEstadoFinal, getEstado, getPrioridad, estados, prioridades } = useEstadosPrioridades();
-  const { puedeModificarItem } = usePermisosTablero();
+  const { puedeModificarItem, puedeMarcarVisibilidad } = usePermisosTablero();
   const puedeEditar = puedeModificarItem(category);
   const cardRef = useRef(null);
   const [editing, setEditing] = useState(autoEdit ?? false);
@@ -25,6 +26,7 @@ function CategoryCard({ category, onUpdate, onRemove, dragHandle, autoEdit, onAu
   const [diasMaximos, setDiasMaximos] = useState(category.dias_maximos ?? '');
   const [estado, setEstado] = useState(category.estado ?? '');
   const [prioridad, setPrioridad] = useState(category.prioridad ?? '');
+  const [visibilidad, setVisibilidad] = useState(category.visibilidad ?? 'publico');
   const [saving, setSaving] = useState(false);
   const [confirmingDiscard, setConfirmingDiscard] = useState(false);
 
@@ -34,7 +36,8 @@ function CategoryCard({ category, onUpdate, onRemove, dragHandle, autoEdit, onAu
     (fechaEntrega || null) !== (category.fecha_entrega ?? null) ||
     (diasMaximos !== '' ? parseInt(diasMaximos, 10) : null) !== (category.dias_maximos ?? null) ||
     (estado || null) !== (category.estado ?? null) ||
-    ((estado && esEstadoFinal(estado)) ? null : (prioridad || null)) !== (category.prioridad ?? null);
+    ((estado && esEstadoFinal(estado)) ? null : (prioridad || null)) !== (category.prioridad ?? null) ||
+    (puedeMarcarVisibilidad && visibilidad !== (category.visibilidad ?? 'publico'));
 
   useEffect(() => {
     if (autoEdit) cardRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -52,6 +55,7 @@ function CategoryCard({ category, onUpdate, onRemove, dragHandle, autoEdit, onAu
     setDiasMaximos(category.dias_maximos ?? '');
     setEstado(category.estado ?? '');
     setPrioridad(category.prioridad ?? '');
+    setVisibilidad(category.visibilidad ?? 'publico');
     setEditing(true);
   };
 
@@ -90,6 +94,7 @@ function CategoryCard({ category, onUpdate, onRemove, dragHandle, autoEdit, onAu
         dias_maximos: diasMaximos !== '' ? parseInt(diasMaximos, 10) : null,
         estado: estado || null,
         prioridad: (estado && esEstadoFinal(estado)) ? null : (prioridad || null),
+        ...(puedeMarcarVisibilidad ? { visibilidad } : {}),
       });
       cerrarEdicion();
     } finally {
@@ -141,6 +146,9 @@ function CategoryCard({ category, onUpdate, onRemove, dragHandle, autoEdit, onAu
             onDiasMaximosChange={setDiasMaximos}
             onEstadoChange={setEstado}
             onPrioridadChange={setPrioridad}
+            visibilidad={visibilidad}
+            onVisibilidadChange={setVisibilidad}
+            puedeMarcarVisibilidad={puedeMarcarVisibilidad}
             onSave={handleSave}
             onCancel={handleCancel}
           />
@@ -167,6 +175,12 @@ function ViewMode({ category, puedeEditar, onEdit, onRemove, dragHandle, getEsta
           <span className="inline-flex items-center px-[0.6em] py-[0.15em] rounded-[0.4em] bg-segundo/10 border border-segundo/20 text-segundo text-[0.75em] font-poppins font-medium">
             Categoría
           </span>
+          {category.visibilidad === 'privado' && (
+            <span className="inline-flex items-center gap-[0.3em] px-[0.5em] py-[0.15em] rounded-[0.4em] bg-tercero/10 border border-tercero/25 text-tercero text-[0.7em] font-poppins font-medium" title="Solo tú ves esta categoría">
+              <FontAwesomeIcon icon={faLock} className="text-[0.7em]" />
+              Privado
+            </span>
+          )}
           <Badge config={getEstado(category.estado)} />
           <Badge config={getPrioridad(category.prioridad)} />
         </div>
@@ -229,7 +243,9 @@ function EditMode({
   nombre, descripcion, fechaEntrega, diasMaximos, estado, prioridad, saving,
   estados, prioridades, esEstadoFinal,
   onNombreChange, onDescripcionChange, onFechaEntregaChange, onDiasMaximosChange,
-  onEstadoChange, onPrioridadChange, onSave, onCancel,
+  onEstadoChange, onPrioridadChange,
+  visibilidad, onVisibilidadChange, puedeMarcarVisibilidad,
+  onSave, onCancel,
 }) {
   const codigo = diasMaximos !== '' && !isNaN(parseInt(diasMaximos, 10))
     ? `D${parseInt(diasMaximos, 10)}DM`
@@ -343,6 +359,10 @@ function EditMode({
           )}
         </div>
       </div>
+
+      {puedeMarcarVisibilidad && (
+        <VisibilidadToggle value={visibilidad} onChange={onVisibilidadChange} />
+      )}
     </div>
   );
 }

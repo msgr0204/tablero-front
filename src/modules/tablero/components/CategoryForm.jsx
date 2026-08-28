@@ -5,16 +5,20 @@ import Input from '../../../components/Input';
 import Button from '../../../components/Button';
 import Select from '../../../components/Select';
 import DeliveryFields from './DeliveryFields';
+import VisibilidadToggle from './VisibilidadToggle';
 import { useEstadosPrioridades } from '../contexts/EstadosPrioridadesContext';
+import usePermisosTablero from '../hooks/usePermisosTablero';
 
 function CategoryForm({ onSubmit, onCancel }) {
   const { estados, prioridades, esEstadoFinal } = useEstadosPrioridades();
+  const { puedeMarcarVisibilidad } = usePermisosTablero();
   const [nombre, setNombre] = useState('');
   const [descripcion, setDescripcion] = useState('');
   const [estado, setEstado] = useState('');
   const [prioridad, setPrioridad] = useState('');
   const [fechaEntrega, setFechaEntrega] = useState('');
   const [diasMaximos, setDiasMaximos] = useState('');
+  const [visibilidad, setVisibilidad] = useState('publico');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -31,6 +35,7 @@ function CategoryForm({ onSubmit, onCancel }) {
         prioridad: (estado && esEstadoFinal(estado)) ? null : (prioridad || null),
         fecha_entrega: fechaEntrega || null,
         dias_maximos: diasMaximos !== '' ? parseInt(diasMaximos, 10) : null,
+        ...(puedeMarcarVisibilidad ? { visibilidad } : {}),
       });
     } finally {
       setLoading(false);
@@ -88,6 +93,10 @@ function CategoryForm({ onSubmit, onCancel }) {
         diasMaximos={diasMaximos}
         onDiasMaximosChange={setDiasMaximos}
       />
+
+      {puedeMarcarVisibilidad && (
+        <VisibilidadToggle value={visibilidad} onChange={setVisibilidad} />
+      )}
 
       {error && (
         <p role="alert" className="text-[0.8em] text-quinto-claro text-center bg-quinto/10 border border-quinto/20 rounded-[0.5em] py-[0.5em] px-[0.75em]">

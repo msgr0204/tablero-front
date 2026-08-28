@@ -5,10 +5,13 @@ import Input from '../../../components/Input';
 import Button from '../../../components/Button';
 import DeliveryFields from './DeliveryFields';
 import StatusFields from './StatusFields';
+import VisibilidadToggle from './VisibilidadToggle';
 import { useEstadosPrioridades } from '../contexts/EstadosPrioridadesContext';
+import usePermisosTablero from '../hooks/usePermisosTablero';
 
 function ModuleForm({ onSubmit, onCancel, initialValues }) {
   const { esEstadoFinal } = useEstadosPrioridades();
+  const { puedeMarcarVisibilidad } = usePermisosTablero();
   const isEdit = Boolean(initialValues);
   const [nombre, setNombre] = useState(initialValues?.nombre ?? '');
   const [descripcion, setDescripcion] = useState(initialValues?.descripcion ?? '');
@@ -16,6 +19,7 @@ function ModuleForm({ onSubmit, onCancel, initialValues }) {
   const [prioridad, setPrioridad] = useState(initialValues?.prioridad ?? '');
   const [fechaEntrega, setFechaEntrega] = useState(initialValues?.fecha_entrega ?? '');
   const [diasMaximos, setDiasMaximos] = useState(initialValues?.dias_maximos ?? '');
+  const [visibilidad, setVisibilidad] = useState(initialValues?.visibilidad ?? 'publico');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -32,6 +36,7 @@ function ModuleForm({ onSubmit, onCancel, initialValues }) {
         prioridad: (estado && esEstadoFinal(estado)) ? null : (prioridad || null),
         fecha_entrega: fechaEntrega || null,
         dias_maximos: diasMaximos !== '' ? parseInt(diasMaximos, 10) : null,
+        ...(puedeMarcarVisibilidad ? { visibilidad } : {}),
       });
     } finally {
       setLoading(false);
@@ -65,6 +70,10 @@ function ModuleForm({ onSubmit, onCancel, initialValues }) {
           diasMaximos={diasMaximos}
           onDiasMaximosChange={setDiasMaximos}
         />
+      )}
+
+      {puedeMarcarVisibilidad && (
+        <VisibilidadToggle value={visibilidad} onChange={setVisibilidad} />
       )}
 
       {error && (

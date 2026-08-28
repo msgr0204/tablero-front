@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCubes, faPen, faListCheck, faTrash, faCircleInfo, faFlag } from '@fortawesome/free-solid-svg-icons';
+import { faCubes, faPen, faListCheck, faTrash, faCircleInfo, faFlag, faLock } from '@fortawesome/free-solid-svg-icons';
 import Badge from '../../../components/Badge';
 import ModuleInfoModal from './ModuleInfoModal';
 import useIsTouchDevice from '../../../hooks/useIsTouchDevice';
@@ -47,6 +47,12 @@ function ModuleCard({ module, onView, onEdit, onRemove, dragHandle }) {
             <span className="inline-flex items-center px-[0.6em] py-[0.15em] rounded-[0.4em] bg-segundo/10 border border-segundo/20 text-segundo text-[0.75em] font-poppins font-medium">
               Módulo
             </span>
+            {module.visibilidad === 'privado' && (
+              <span className="inline-flex items-center gap-[0.3em] px-[0.5em] py-[0.15em] rounded-[0.4em] bg-tercero/10 border border-tercero/25 text-tercero text-[0.7em] font-poppins font-medium" title="Solo tú ves este módulo">
+                <FontAwesomeIcon icon={faLock} className="text-[0.7em]" />
+                Privado
+              </span>
+            )}
             <Badge config={getEstado(module.estado)} size="sm" />
             <Badge config={getPrioridad(module.prioridad)} size="sm" />
           </div>

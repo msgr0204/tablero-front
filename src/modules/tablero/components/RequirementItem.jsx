@@ -7,13 +7,14 @@ import Badge from '../../../components/Badge';
 import StatusFields from './StatusFields';
 import DeliveryFields from './DeliveryFields';
 import ObservationList from './ObservationList';
+import VistoBadge from './VistoBadge';
 import ConfirmDiscardModal from '../../../components/ConfirmDiscardModal';
 import useIsTouchDevice from '../../../hooks/useIsTouchDevice';
 import { useEstadosPrioridades } from '../contexts/EstadosPrioridadesContext';
 import usePermisosTablero from '../hooks/usePermisosTablero';
 import { formatearFecha, formatearFechaHora } from '../../../lib/formatFecha';
 
-function RequirementItem({ req, index, onUpdate, onRemove, onAddObs, onToggle, selected, onSelect }) {
+function RequirementItem({ req, index, onUpdate, onRemove, onAddObs, onToggle, selected, onSelect, onVisto }) {
   const isTouch = useIsTouchDevice();
   const { getEstado, getPrioridad, getTipo, esEstadoFinal } = useEstadosPrioridades();
   const { puedeModificarItem, puedeMarcarFinal } = usePermisosTablero();
@@ -135,6 +136,9 @@ function RequirementItem({ req, index, onUpdate, onRemove, onAddObs, onToggle, s
               <Badge config={getEstado(req.estado)} size="sm" />
               <Badge config={getPrioridad(req.prioridad)} size="sm" />
               <Badge config={getTipo(req.tipo)} size="sm" />
+              <span onClick={(e) => e.stopPropagation()}>
+                <VistoBadge entidad="Requerimiento" entidadId={req.id} visto={req.visto} onMarcado={onVisto} />
+              </span>
             </div>
             <div className="flex items-center gap-[0.75em] flex-wrap mt-[0.2em]">
               {req.creado_por && (
