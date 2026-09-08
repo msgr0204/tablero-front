@@ -1,10 +1,10 @@
 import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowLeft, faListCheck, faFlag, faLayerGroup } from '@fortawesome/free-solid-svg-icons';
+import { faArrowLeft, faListCheck, faFlag, faLayerGroup, faSliders } from '@fortawesome/free-solid-svg-icons';
 import { DndContext, closestCenter } from '@dnd-kit/core';
 import { SortableContext, arrayMove, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import AppHeader from '../../../components/AppHeader';
-import { ListaSkeleton } from '../../../components/Skeleton';
+import { Esqueleto } from '../../../components/Skeleton';
 import EstadoPrioridadItem from '../components/EstadoPrioridadItem';
 import CreateEstadoPrioridadForm from '../components/CreateEstadoPrioridadForm';
 import useDragSensors from '../../../hooks/useDragSensors';
@@ -24,25 +24,11 @@ function ConfiguracionEstados() {
   } = useEstadosPrioridades();
   const sensors = useDragSensors();
 
-  const handleDragEndEstados = ({ active, over }) => {
+  const reordenar = (lista, reorder) => ({ active, over }) => {
     if (!over || active.id === over.id) return;
-    const oldIndex = estados.findIndex((e) => e.id === active.id);
-    const newIndex = estados.findIndex((e) => e.id === over.id);
-    reorderEstados(arrayMove(estados, oldIndex, newIndex).map((e) => e.id));
-  };
-
-  const handleDragEndPrioridades = ({ active, over }) => {
-    if (!over || active.id === over.id) return;
-    const oldIndex = prioridades.findIndex((p) => p.id === active.id);
-    const newIndex = prioridades.findIndex((p) => p.id === over.id);
-    reorderPrioridades(arrayMove(prioridades, oldIndex, newIndex).map((p) => p.id));
-  };
-
-  const handleDragEndTipos = ({ active, over }) => {
-    if (!over || active.id === over.id) return;
-    const oldIndex = tipos.findIndex((t) => t.id === active.id);
-    const newIndex = tipos.findIndex((t) => t.id === over.id);
-    reorderTipos(arrayMove(tipos, oldIndex, newIndex).map((t) => t.id));
+    const oldIndex = lista.findIndex((x) => x.id === active.id);
+    const newIndex = lista.findIndex((x) => x.id === over.id);
+    reorder(arrayMove(lista, oldIndex, newIndex).map((x) => x.id));
   };
 
   return (
@@ -56,106 +42,123 @@ function ConfiguracionEstados() {
           >
             <FontAwesomeIcon icon={faArrowLeft} className="text-[0.85em]" />
           </button>
-          <div className="min-w-0">
-            <h1 className="text-[0.85em] sm:text-[0.95em] font-semibold font-poppins text-cuarto tracking-tight truncate">
-              Estados y Prioridades
-            </h1>
-            <p className="text-[0.75em] text-cuarto/60 mt-[0.1em] hidden sm:block">
-              Personaliza los estados y prioridades disponibles en tu tablero
-            </p>
-          </div>
+          <h1 className="text-[0.85em] sm:text-[0.95em] font-semibold font-poppins text-cuarto tracking-tight truncate">
+            Configuración del catálogo
+          </h1>
         </div>
       </AppHeader>
 
-      <main className="px-[1em] sm:px-[1.5em] py-[1em] sm:py-[1.5em] max-w-[48em] mx-auto flex flex-col gap-[2em]">
+      <main className="px-[1em] sm:px-[1.5em] xl:px-[2em] py-[1.25em] sm:py-[1.75em] flex flex-col gap-[1.5em]">
+
+        {/* Encabezado de sección, mismo patrón que el resto de pantallas */}
+        <div className="flex items-center gap-[0.85em]">
+          <div className="w-[3em] h-[3em] rounded-[0.9em] bg-segundo/10 border border-segundo/25 flex items-center justify-center flex-shrink-0">
+            <FontAwesomeIcon icon={faSliders} className="text-segundo text-[1.15em]" />
+          </div>
+          <div className="min-w-0">
+            <h2 className="text-[1.15em] sm:text-[1.3em] font-bold font-poppins text-cuarto tracking-tight leading-tight">
+              Estados, prioridades y tipos
+            </h2>
+            <p className="text-[0.8em] text-cuarto/50 font-roboto mt-[0.15em]">
+              Personaliza los catálogos disponibles en tu tablero
+            </p>
+          </div>
+        </div>
+
         {loading ? (
-          <ListaSkeleton etiqueta="Cargando la configuración" />
+          <PanelesSkeleton />
         ) : (
-          <>
-            <section className="flex flex-col gap-[0.75em]">
-              <div className="flex items-center gap-[0.5em]">
-                <FontAwesomeIcon icon={faListCheck} className="text-segundo/60 text-[0.9em]" />
-                <h2 className="text-[0.85em] font-semibold font-poppins text-cuarto uppercase tracking-wider">Estados</h2>
-                <span className="text-[0.75em] text-cuarto/30 font-roboto">({estados.length})</span>
-              </div>
+          <div className="grid grid-cols-1 xl:grid-cols-3 gap-[1.25em]">
+            <SeccionPanel
+              icon={faListCheck} titulo="Estados" total={estados.length}
+              lista={
+                <ListaOrdenable
+                  items={estados} sensors={sensors} onDragEnd={reordenar(estados, reorderEstados)}
+                  render={(estado) => (
+                    <EstadoPrioridadItem key={estado.id} item={estado} isEstado nombreEntidad="el estado" onUpdate={updateEstado} onRemove={removeEstado} />
+                  )}
+                />
+              }
+              form={<CreateEstadoPrioridadForm isEstado onCreate={createEstado} placeholder="Nuevo estado..." />}
+            />
 
-              <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEndEstados}>
-                <SortableContext items={estados.map((e) => e.id)} strategy={verticalListSortingStrategy}>
-                  <ul className="flex flex-col gap-[0.5em]">
-                    {estados.map((estado) => (
-                      <EstadoPrioridadItem
-                        key={estado.id}
-                        item={estado}
-                        isEstado
-                        nombreEntidad="el estado"
-                        onUpdate={updateEstado}
-                        onRemove={removeEstado}
-                      />
-                    ))}
-                  </ul>
-                </SortableContext>
-              </DndContext>
+            <SeccionPanel
+              icon={faFlag} titulo="Prioridades" total={prioridades.length}
+              lista={
+                <ListaOrdenable
+                  items={prioridades} sensors={sensors} onDragEnd={reordenar(prioridades, reorderPrioridades)}
+                  render={(prioridad) => (
+                    <EstadoPrioridadItem key={prioridad.id} item={prioridad} isEstado={false} nombreEntidad="la prioridad" onUpdate={updatePrioridad} onRemove={removePrioridad} />
+                  )}
+                />
+              }
+              form={<CreateEstadoPrioridadForm isEstado={false} onCreate={createPrioridad} placeholder="Nueva prioridad..." />}
+            />
 
-              <CreateEstadoPrioridadForm isEstado onCreate={createEstado} placeholder="Nuevo estado..." />
-            </section>
-
-            <section className="flex flex-col gap-[0.75em]">
-              <div className="flex items-center gap-[0.5em]">
-                <FontAwesomeIcon icon={faFlag} className="text-segundo/60 text-[0.9em]" />
-                <h2 className="text-[0.85em] font-semibold font-poppins text-cuarto uppercase tracking-wider">Prioridades</h2>
-                <span className="text-[0.75em] text-cuarto/30 font-roboto">({prioridades.length})</span>
-              </div>
-
-              <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEndPrioridades}>
-                <SortableContext items={prioridades.map((p) => p.id)} strategy={verticalListSortingStrategy}>
-                  <ul className="flex flex-col gap-[0.5em]">
-                    {prioridades.map((prioridad) => (
-                      <EstadoPrioridadItem
-                        key={prioridad.id}
-                        item={prioridad}
-                        isEstado={false}
-                        nombreEntidad="la prioridad"
-                        onUpdate={updatePrioridad}
-                        onRemove={removePrioridad}
-                      />
-                    ))}
-                  </ul>
-                </SortableContext>
-              </DndContext>
-
-              <CreateEstadoPrioridadForm isEstado={false} onCreate={createPrioridad} placeholder="Nueva prioridad..." />
-            </section>
-
-            <section className="flex flex-col gap-[0.75em]">
-              <div className="flex items-center gap-[0.5em]">
-                <FontAwesomeIcon icon={faLayerGroup} className="text-segundo/60 text-[0.9em]" />
-                <h2 className="text-[0.85em] font-semibold font-poppins text-cuarto uppercase tracking-wider">Tipos</h2>
-                <span className="text-[0.75em] text-cuarto/30 font-roboto">({tipos.length})</span>
-              </div>
-
-              <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEndTipos}>
-                <SortableContext items={tipos.map((t) => t.id)} strategy={verticalListSortingStrategy}>
-                  <ul className="flex flex-col gap-[0.5em]">
-                    {tipos.map((tipo) => (
-                      <EstadoPrioridadItem
-                        key={tipo.id}
-                        item={tipo}
-                        isEstado={false}
-                        nombreEntidad="el tipo"
-                        onUpdate={updateTipo}
-                        onRemove={removeTipo}
-                      />
-                    ))}
-                  </ul>
-                </SortableContext>
-              </DndContext>
-
-              <CreateEstadoPrioridadForm isEstado={false} onCreate={createTipo} placeholder="Nuevo tipo..." />
-            </section>
-          </>
+            <SeccionPanel
+              icon={faLayerGroup} titulo="Tipos" total={tipos.length}
+              lista={
+                <ListaOrdenable
+                  items={tipos} sensors={sensors} onDragEnd={reordenar(tipos, reorderTipos)}
+                  render={(tipo) => (
+                    <EstadoPrioridadItem key={tipo.id} item={tipo} isEstado={false} nombreEntidad="el tipo" onUpdate={updateTipo} onRemove={removeTipo} />
+                  )}
+                />
+              }
+              form={<CreateEstadoPrioridadForm isEstado={false} onCreate={createTipo} placeholder="Nuevo tipo..." />}
+            />
+          </div>
         )}
       </main>
     </div>
+  );
+}
+
+// Panel-tarjeta de una sección del catálogo. Ocupa toda la altura de su celda
+// del grid (h-full) para que las 3 columnas queden parejas; la lista crece
+// (flex-1) y el form de agregar queda anclado al fondo, así el espacio sobrante
+// del panel más corto cae entre la lista y el form, no como un hueco flotante.
+function SeccionPanel({ icon, titulo, total, lista, form }) {
+  return (
+    <section className="flex flex-col h-full rounded-[1em] border border-cuarto/10 bg-primero-claro/40 p-[1em]">
+      <div className="flex items-center gap-[0.6em] mb-[0.85em]">
+        <span className="w-[2em] h-[2em] rounded-[0.6em] bg-segundo/10 border border-segundo/20 flex items-center justify-center flex-shrink-0">
+          <FontAwesomeIcon icon={icon} className="text-segundo text-[0.8em]" />
+        </span>
+        <h3 className="text-[0.85em] font-semibold font-poppins text-cuarto uppercase tracking-wider">{titulo}</h3>
+        <span className="ml-auto text-[0.75em] font-poppins font-semibold text-cuarto/40 bg-cuarto/5 rounded-full px-[0.6em] py-[0.1em]">{total}</span>
+      </div>
+      <div className="flex-1">{lista}</div>
+      <div className="mt-[0.85em]">{form}</div>
+    </section>
+  );
+}
+
+function ListaOrdenable({ items, sensors, onDragEnd, render }) {
+  return (
+    <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
+      <SortableContext items={items.map((x) => x.id)} strategy={verticalListSortingStrategy}>
+        <ul className="flex flex-col gap-[0.5em]">
+          {items.map(render)}
+        </ul>
+      </SortableContext>
+    </DndContext>
+  );
+}
+
+// Skeleton de los 3 paneles mientras carga el catálogo.
+function PanelesSkeleton() {
+  return (
+    <Esqueleto etiqueta="Cargando el catálogo" className="grid grid-cols-1 xl:grid-cols-3 gap-[1.25em] items-start">
+      {Array.from({ length: 3 }).map((_, i) => (
+        <div key={i} className="rounded-[1em] border border-cuarto/10 bg-primero-claro/40 p-[1em] flex flex-col gap-[0.75em]">
+          <span className="tq-shimmer block w-[45%] h-[1.2em] rounded-[0.4em]" />
+          {Array.from({ length: 4 }).map((__, j) => (
+            <span key={j} className="tq-shimmer block w-full h-[2.6em] rounded-[0.6em]" />
+          ))}
+        </div>
+      ))}
+    </Esqueleto>
   );
 }
 

@@ -71,7 +71,7 @@ function VistoBadge({ entidad, entidadId, visto, onMarcado }) {
       )}
 
       <span onClick={(e) => e.stopPropagation()}>
-        <Modal isOpen={detalleAbierto} onClose={() => setDetalleAbierto(false)} title="Confirmaciones de visto" size="md">
+        <Modal isOpen={detalleAbierto} onClose={() => setDetalleAbierto(false)} eyebrow="Seguimiento" title="Confirmaciones de visto" icon={faEye} size="md">
           {cargandoDetalle ? (
             <div className="flex items-center justify-center py-[2.5em]">
               <div className="w-[1.25em] h-[1.25em] border-2 border-segundo/30 border-t-segundo rounded-full animate-spin" />

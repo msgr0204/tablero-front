@@ -121,6 +121,7 @@ function CategoryCard({ category, onUpdate, onRemove, dragHandle, autoEdit, onAu
         {!editing ? (
           <ViewMode
             category={category}
+            entregada={Boolean(category.estado && esEstadoFinal(category.estado))}
             puedeEditar={puedeEditar}
             onEdit={handleEdit}
             onRemove={onRemove}
@@ -164,7 +165,7 @@ function CategoryCard({ category, onUpdate, onRemove, dragHandle, autoEdit, onAu
   );
 }
 
-function ViewMode({ category, puedeEditar, onEdit, onRemove, dragHandle, getEstado, getPrioridad }) {
+function ViewMode({ category, entregada, puedeEditar, onEdit, onRemove, dragHandle, getEstado, getPrioridad }) {
   const isTouch = useIsTouchDevice();
   const visibilityClass = isTouch ? 'opacity-100' : 'opacity-0 group-hover:opacity-100';
 
@@ -218,7 +219,7 @@ function ViewMode({ category, puedeEditar, onEdit, onRemove, dragHandle, getEsta
       <div className="flex flex-col gap-[0.3em] mb-[1em]">
         <InfoRow label="Descripción" value={category.descripcion || '—'} />
         <InfoRow label="Módulos" value={category.totalModulos ?? 0} />
-        <DeliveryRow fecha={category.fecha_entrega} />
+        <DeliveryRow fecha={category.fecha_entrega} entregada={entregada} />
         <IdRow diasMaximos={category.dias_maximos} />
       </div>
 
@@ -376,19 +377,22 @@ function InfoRow({ label, value }) {
   );
 }
 
-function DeliveryRow({ fecha }) {
+// Ya entregada, la fecha deja de ser un plazo por cumplir: se reetiqueta como el
+// hito alcanzado para que no se lea como algo todavía pendiente.
+function DeliveryRow({ fecha, entregada }) {
+  const etiqueta = entregada ? 'Entregado:' : 'Entrega:';
   if (!fecha) {
     return (
       <div className="flex items-baseline gap-[0.5em]">
-        <span className="text-[0.75em] text-cuarto/40 font-roboto w-[5.5em] flex-shrink-0">Entrega:</span>
+        <span className="text-[0.75em] text-cuarto/40 font-roboto w-[5.5em] flex-shrink-0">{etiqueta}</span>
         <span className="text-[0.75em] text-cuarto/30 font-roboto italic">Sin fecha</span>
       </div>
     );
   }
   return (
     <div className="flex items-baseline gap-[0.5em]">
-      <span className="text-[0.75em] text-cuarto/40 font-roboto w-[5.5em] flex-shrink-0">Entrega:</span>
-      <span className="text-[0.75em] font-roboto font-semibold text-segundo">{formatearFecha(fecha)}</span>
+      <span className="text-[0.75em] text-cuarto/40 font-roboto w-[5.5em] flex-shrink-0">{etiqueta}</span>
+      <span className={`text-[0.75em] font-roboto font-semibold ${entregada ? 'text-segundo/70' : 'text-segundo'}`}>{formatearFecha(fecha)}</span>
     </div>
   );
 }

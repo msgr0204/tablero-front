@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowRight } from '@fortawesome/free-solid-svg-icons';
+import { faArrowRight, faBell } from '@fortawesome/free-solid-svg-icons';
 import Modal from './Modal';
 import resolverRutaNotificacion, { etiquetaEntidad } from '../lib/resolverRutaNotificacion';
 import { iconoEntidad } from '../lib/notificacionFormato';
@@ -28,7 +28,7 @@ function NotificationDetailModal({ notificacion, isOpen, onClose, onMarcarLeida 
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Notificación" size="md">
+    <Modal isOpen={isOpen} onClose={onClose} eyebrow="Actividad" title="Notificación" icon={faBell} size="md">
       <div className="flex flex-col gap-[1.25em]">
         <div className="flex items-center gap-[0.75em]">
           <div className="w-[2.5em] h-[2.5em] rounded-[0.65em] flex items-center justify-center flex-shrink-0 bg-segundo/10">

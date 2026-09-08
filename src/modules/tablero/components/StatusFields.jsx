@@ -1,61 +1,58 @@
 import Select from '../../../components/Select';
+import { Campo } from '../../../components/FormKit';
 import { useEstadosPrioridades } from '../contexts/EstadosPrioridadesContext';
 
+// Estado / Prioridad / Tipo. En un estado de cierre la prioridad y el tipo dejan
+// de aplicar (la tarea ya terminó), así que se muestran deshabilitados en vez de
+// desaparecer: si el campo se esfumara, el formulario daría un salto.
 function StatusFields({
   estado, onEstadoChange,
   prioridad, onPrioridadChange,
   tipo, onTipoChange,
   conTipo = false,
-  size = 'md',
 }) {
   const { estados, prioridades, tipos, esEstadoFinal } = useEstadosPrioridades();
-  const isFinal = estado && esEstadoFinal(estado);
+  const isFinal = Boolean(estado && esEstadoFinal(estado));
+
+  const noAplica = (
+    <span className="w-full h-[2.75em] px-[0.85em] flex items-center rounded-[0.6em] text-[0.85em] text-cuarto/30 italic border border-cuarto/5">
+      No aplica
+    </span>
+  );
 
   return (
-    <div className={`grid grid-cols-2 gap-[0.75em] ${conTipo ? 'sm:grid-cols-3' : ''}`}>
-      <div className="flex flex-col gap-[0.3em]">
-        <label className="text-[0.75em] text-cuarto/50 font-roboto">Estado</label>
+    <div className={`grid grid-cols-2 gap-[0.85em] ${conTipo ? 'sm:grid-cols-3' : ''}`}>
+      <Campo label="Estado">
         <Select
           value={estado ?? ''}
           onChange={onEstadoChange}
           placeholder="Sin estado"
-          size={size}
           options={[{ value: '', label: 'Sin estado' }, ...estados.map((e) => ({ value: e.id, label: e.label }))]}
         />
-      </div>
-      <div className="flex flex-col gap-[0.3em]">
-        <label className="text-[0.75em] text-cuarto/50 font-roboto">Prioridad</label>
-        {isFinal ? (
-          <span className="w-full h-[2.5em] px-[0.75em] flex items-center rounded-[0.5em] text-[0.85em] text-cuarto/30 italic border border-transparent">
-            No aplica
-          </span>
-        ) : (
+      </Campo>
+
+      <Campo label="Prioridad">
+        {isFinal ? noAplica : (
           <Select
             value={prioridad ?? ''}
             onChange={onPrioridadChange}
             placeholder="Sin prioridad"
-            size={size}
             options={[{ value: '', label: 'Sin prioridad' }, ...prioridades.map((p) => ({ value: p.id, label: p.label }))]}
           />
         )}
-      </div>
+      </Campo>
+
       {conTipo && (
-        <div className="flex flex-col gap-[0.3em]">
-          <label className="text-[0.75em] text-cuarto/50 font-roboto">Tipo</label>
-          {isFinal ? (
-            <span className="w-full h-[2.5em] px-[0.75em] flex items-center rounded-[0.5em] text-[0.85em] text-cuarto/30 italic border border-transparent">
-              No aplica
-            </span>
-          ) : (
+        <Campo label="Tipo" className="col-span-2 sm:col-span-1">
+          {isFinal ? noAplica : (
             <Select
               value={tipo ?? ''}
               onChange={onTipoChange}
               placeholder="Sin tipo"
-              size={size}
               options={[{ value: '', label: 'Sin tipo' }, ...tipos.map((t) => ({ value: t.id, label: t.label }))]}
             />
           )}
-        </div>
+        </Campo>
       )}
     </div>
   );

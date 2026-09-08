@@ -108,8 +108,8 @@ function EstadoPrioridadItem({ item, isEstado, onUpdate, onRemove, nombreEntidad
             aria-label="Arrastrar"
             style={{ touchAction: 'none' }}
             className={[
-              'flex items-center justify-center w-[1.75em] h-[1.75em] rounded-[0.4em] flex-shrink-0',
-              'text-cuarto/30 hover:text-segundo/60 hover:bg-segundo/10',
+              'flex items-center justify-center w-[1.5em] h-[1.75em] rounded-[0.4em] flex-shrink-0',
+              'text-cuarto/25 hover:text-segundo/60 hover:bg-segundo/10',
               'transition-all duration-200 cursor-grab active:cursor-grabbing',
               'focus:outline-none focus-visible:ring-2 focus-visible:ring-segundo/50',
               isTouch ? 'opacity-100' : 'opacity-0 group-hover:opacity-100',
@@ -119,13 +119,20 @@ function EstadoPrioridadItem({ item, isEstado, onUpdate, onRemove, nombreEntidad
           </div>
         )}
 
-        <span className="text-[0.75em] font-mono text-cuarto/30 w-[6em] truncate flex-shrink-0">{item.value}</span>
-
         {!editing ? (
           <>
+            {/* Punto de color: identifica el ítem de un vistazo sin depender del
+                badge, y ancla la fila a la izquierda ahora que el slug se fue. */}
+            <span
+              aria-hidden="true"
+              className="w-[0.7em] h-[0.7em] rounded-full flex-shrink-0"
+              style={{ backgroundColor: item.color?.startsWith('#') ? item.color : DEFAULT_COLOR }}
+            />
             <Badge config={item} />
             {isEstado && item.es_estado_final && (
-              <span className="text-[0.75em] text-segundo/60 font-roboto italic">Estado de cierre</span>
+              <span className="inline-flex items-center px-[0.5em] py-[0.1em] rounded-full text-[0.65em] font-poppins font-medium text-segundo/80 bg-segundo/10 border border-segundo/20">
+                Cierre
+              </span>
             )}
             <div className="flex-1" />
             {puedeGestionarCatalogo && (

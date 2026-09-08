@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faArrowLeft, faUserPlus, faUsers, faSearch, faUserShield, faFilter, faXmark,
-  faPen, faTrash, faBriefcase, faEnvelope, faPhone, faLocationDot, faIdCard,
+  faPen, faTrash, faBriefcase, faUserPen, faEnvelope, faPhone, faLocationDot, faIdCard,
 } from '@fortawesome/free-solid-svg-icons';
 import AppHeader from '../../../components/AppHeader';
 import EmptyState from '../../../components/EmptyState';
@@ -11,7 +11,8 @@ import { Esqueleto } from '../../../components/Skeleton';
 import Modal from '../../../components/Modal';
 import Select from '../../../components/Select';
 import ConfirmDeleteModal from '../../../components/ConfirmDeleteModal';
-import UsuarioForm from '../components/UsuarioForm';
+import UsuarioForm, { USUARIO_FORM_ID } from '../components/UsuarioForm';
+import ModalActions from '../../../components/ModalActions';
 import useUsuarios from '../hooks/useUsuarios';
 import useConfirmDelete from '../../../hooks/useConfirmDelete';
 import { useAuth } from '../../../context/AuthContext';
@@ -30,6 +31,7 @@ function GestionUsuarios() {
   const { usuarios, loading, fetchUsuarios, createUsuario, updateUsuario, removeUsuario } = useUsuarios();
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [editingUsuario, setEditingUsuario] = useState(null);
+  const [guardando, setGuardando] = useState(false);
   const [busqueda, setBusqueda] = useState('');
   const [filtroRol, setFiltroRol] = useState(TODOS);
   const [filtroEstado, setFiltroEstado] = useState(TODOS);
@@ -192,13 +194,43 @@ function GestionUsuarios() {
         )}
       </main>
 
-      <Modal isOpen={isCreateOpen} onClose={() => setIsCreateOpen(false)} title="Nuevo usuario" size="xl">
-        <UsuarioForm onSubmit={handleCreate} onCancel={() => setIsCreateOpen(false)} />
+      <Modal
+        isOpen={isCreateOpen}
+        onClose={() => setIsCreateOpen(false)}
+        eyebrow="Administración"
+        title="Nuevo usuario"
+        icon={faUserPlus}
+        size="xl"
+        footer={
+          <ModalActions
+            form={USUARIO_FORM_ID}
+            onCancel={() => setIsCreateOpen(false)}
+            confirmLabel="Crear usuario"
+            loading={guardando}
+          />
+        }
+      >
+        <UsuarioForm onSubmit={handleCreate} onLoadingChange={setGuardando} />
       </Modal>
 
-      <Modal isOpen={Boolean(editingUsuario)} onClose={() => setEditingUsuario(null)} title="Editar usuario" size="xl">
+      <Modal
+        isOpen={Boolean(editingUsuario)}
+        onClose={() => setEditingUsuario(null)}
+        eyebrow="Administración"
+        title={editingUsuario?.nombre ?? 'Editar usuario'}
+        icon={faUserPen}
+        size="xl"
+        footer={
+          <ModalActions
+            form={USUARIO_FORM_ID}
+            onCancel={() => setEditingUsuario(null)}
+            confirmLabel="Guardar cambios"
+            loading={guardando}
+          />
+        }
+      >
         {editingUsuario && (
-          <UsuarioForm initialValues={editingUsuario} onSubmit={handleUpdate} onCancel={() => setEditingUsuario(null)} />
+          <UsuarioForm initialValues={editingUsuario} onSubmit={handleUpdate} onLoadingChange={setGuardando} />
         )}
       </Modal>
 

@@ -1,23 +1,23 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faXmark } from '@fortawesome/free-solid-svg-icons';
+import { Campo, inputClass } from '../../../components/FormKit';
 
+// Fecha de entrega + días máximos, que juntos forman el código legible (D5DM).
+// Usa el kit de formulario para no volver a divergir del resto de campos.
 function DeliveryFields({ fecha, onFechaChange, diasMaximos, onDiasMaximosChange }) {
   const codigo = diasMaximos !== '' && diasMaximos !== null && !isNaN(parseInt(diasMaximos, 10))
     ? `D${parseInt(diasMaximos, 10)}DM`
     : null;
 
-  const fieldClass = 'h-[2.5em] px-[0.75em] rounded-[0.5em] text-[0.85em] font-roboto bg-primero-claro/60 text-cuarto border border-cuarto/10 hover:border-cuarto/20 focus:border-segundo/60 focus:bg-primero-claro focus:ring-1 focus:ring-segundo/40 outline-none transition-all duration-200';
-
   return (
-    <div className="grid grid-cols-[minmax(0,1fr)_auto] gap-[0.75em]">
-      <div className="flex flex-col gap-[0.3em] min-w-0">
-        <label className="text-[0.75em] text-cuarto/50 font-roboto">Fecha de entrega</label>
+    <div className="grid grid-cols-[minmax(0,1fr)_auto] gap-[0.85em]">
+      <Campo label="Fecha de entrega">
         <div className="flex items-center gap-[0.4em]">
           <input
             type="date"
             value={fecha ?? ''}
             onChange={(e) => onFechaChange(e.target.value)}
-            className={`${fieldClass} flex-1 min-w-0`}
+            className={`${inputClass(false)} flex-1 min-w-0`}
           />
           {fecha && (
             <button
@@ -30,24 +30,19 @@ function DeliveryFields({ fecha, onFechaChange, diasMaximos, onDiasMaximosChange
             </button>
           )}
         </div>
-      </div>
-      <div className="flex flex-col gap-[0.3em] w-[5.5em] flex-shrink-0">
-        <div className="flex items-center justify-between gap-[0.25em]">
-          <label className="text-[0.75em] text-cuarto/50 font-roboto">ID</label>
-          {codigo && (
-            <span className="text-[0.7em] font-mono font-bold tracking-widest text-cuarto/40 select-all truncate">
-              {codigo}
-            </span>
-          )}
-        </div>
-        <input
-          type="number"
-          min="1"
-          value={diasMaximos ?? ''}
-          onChange={(e) => onDiasMaximosChange(e.target.value)}
-          placeholder="—"
-          className={`${fieldClass} w-full [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none`}
-        />
+      </Campo>
+
+      <div className="w-[6em] flex-shrink-0">
+        <Campo label="ID" hint={codigo ?? undefined}>
+          <input
+            type="number"
+            min="1"
+            value={diasMaximos ?? ''}
+            onChange={(e) => onDiasMaximosChange(e.target.value)}
+            placeholder="—"
+            className={`${inputClass(false)} [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none`}
+          />
+        </Campo>
       </div>
     </div>
   );

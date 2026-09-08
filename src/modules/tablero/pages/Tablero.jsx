@@ -10,7 +10,8 @@ import ConfirmDeleteModal from '../../../components/ConfirmDeleteModal';
 import SearchBar from '../../../components/SearchBar';
 import FilterDropdown from '../../../components/FilterDropdown';
 import CreateCategoryButton from '../components/CreateCategoryButton';
-import CategoryForm from '../components/CategoryForm';
+import CategoryForm, { CATEGORY_FORM_ID } from '../components/CategoryForm';
+import ModalActions from '../../../components/ModalActions';
 import CategoryCard from '../components/CategoryCard';
 import SortableCategoryCard from '../components/SortableCategoryCard';
 import EquipoModal from '../components/EquipoModal';
@@ -28,6 +29,7 @@ function Tablero() {
   const { esPersonal, esDueno } = useAmbito();
   const { puedeGestionarEquipo } = usePermisosTablero();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [creando, setCreando] = useState(false);
   const [isEquipoOpen, setIsEquipoOpen] = useState(false);
   const [activeCategory, setActiveCategory] = useState(null);
   const [searchParams, setSearchParams] = useSearchParams();
@@ -51,6 +53,8 @@ function Tablero() {
       return next;
     }, { replace: true });
   };
+
+  const cerrarCrear = () => setIsModalOpen(false);
 
   const handleCreate = async (payload) => {
     await createCategory(payload);
@@ -182,8 +186,23 @@ function Tablero() {
         )}
       </main>
 
-      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Nueva categoría">
-        <CategoryForm onSubmit={handleCreate} onCancel={() => setIsModalOpen(false)} />
+      <Modal
+        isOpen={isModalOpen}
+        onClose={cerrarCrear}
+        eyebrow="Tablero"
+        title="Nueva categoría"
+        icon={faTag}
+        size="lg"
+        footer={
+          <ModalActions
+            form={CATEGORY_FORM_ID}
+            onCancel={cerrarCrear}
+            confirmLabel="Crear categoría"
+            loading={creando}
+          />
+        }
+      >
+        <CategoryForm onSubmit={handleCreate} onLoadingChange={setCreando} />
       </Modal>
 
       <ConfirmDeleteModal

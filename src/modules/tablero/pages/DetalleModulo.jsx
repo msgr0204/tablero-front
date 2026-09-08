@@ -9,8 +9,9 @@ import Modal from '../../../components/Modal';
 import Badge from '../../../components/Badge';
 import ConfirmDeleteModal from '../../../components/ConfirmDeleteModal';
 import FilterDropdown from '../../../components/FilterDropdown';
-import ModuleForm from '../components/ModuleForm';
-import RequirementForm from '../components/RequirementForm';
+import ModuleForm, { MODULE_FORM_ID } from '../components/ModuleForm';
+import RequirementForm, { REQUIREMENT_FORM_ID } from '../components/RequirementForm';
+import ModalActions from '../../../components/ModalActions';
 import ObservationList from '../components/ObservationList';
 import RequirementItem from '../components/RequirementItem';
 import CompletedRequirementItem from '../components/CompletedRequirementItem';
@@ -47,6 +48,8 @@ function DetalleModulo() {
   const [isAddReqOpen, setIsAddReqOpen] = useState(false);
   const [selectedReqId, setSelectedReqId] = useState(null);
   const [activeTab, setActiveTab] = useState('detalle');
+  const [guardandoReq, setGuardandoReq] = useState(false);
+  const [guardandoModulo, setGuardandoModulo] = useState(false);
 
   useEffect(() => {
     fetchModule().then((found) => {
@@ -357,18 +360,45 @@ function DetalleModulo() {
         </section>
       </main>
 
-      <Modal isOpen={isAddReqOpen} onClose={() => setIsAddReqOpen(false)} title="Nuevo requerimiento" size="lg">
-        <RequirementForm
-          onSubmit={handleAddRequirement}
-          onCancel={() => setIsAddReqOpen(false)}
-        />
+      <Modal
+        isOpen={isAddReqOpen}
+        onClose={() => setIsAddReqOpen(false)}
+        eyebrow={module.nombre}
+        title="Nuevo requerimiento"
+        icon={faListCheck}
+        size="lg"
+        footer={
+          <ModalActions
+            form={REQUIREMENT_FORM_ID}
+            onCancel={() => setIsAddReqOpen(false)}
+            confirmLabel="Crear requerimiento"
+            loading={guardandoReq}
+          />
+        }
+      >
+        <RequirementForm onSubmit={handleAddRequirement} onLoadingChange={setGuardandoReq} />
       </Modal>
 
-      <Modal isOpen={isEditOpen} onClose={() => setIsEditOpen(false)} title="Editar módulo">
+      <Modal
+        isOpen={isEditOpen}
+        onClose={() => setIsEditOpen(false)}
+        eyebrow="Editar"
+        title={module.nombre}
+        icon={faCubes}
+        size="lg"
+        footer={
+          <ModalActions
+            form={MODULE_FORM_ID}
+            onCancel={() => setIsEditOpen(false)}
+            confirmLabel="Guardar cambios"
+            loading={guardandoModulo}
+          />
+        }
+      >
         <ModuleForm
           initialValues={module}
           onSubmit={handleUpdateModule}
-          onCancel={() => setIsEditOpen(false)}
+          onLoadingChange={setGuardandoModulo}
         />
       </Modal>
 

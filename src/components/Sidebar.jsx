@@ -12,7 +12,7 @@ import { useBranding } from '../context/BrandingContext';
 // header. Se monta desde AppHeader, así todas las páginas lo heredan.
 function Sidebar({ isOpen, onClose }) {
   const navigate = useNavigate();
-  const { logout, usuario } = useAuth();
+  const { logout } = useAuth();
   const { branding } = useBranding();
   const reducirMovimiento = useReducedMotion();
 
@@ -54,7 +54,7 @@ function Sidebar({ isOpen, onClose }) {
             className="fixed z-50 left-0 top-0 h-dvh w-[18em] max-w-[85vw] bg-primero-fuerte border-r border-cuarto/10 shadow-xl shadow-primero-oscuro/50 flex flex-col rounded-r-[1.5em] font-poppins"
             aria-label="Menú principal"
           >
-            <div className="px-[1.25em] pt-[1.25em] pb-[1em] border-b border-cuarto/10">
+            <div className="px-[1.25em] pt-[1.25em] pb-[1.25em] border-b border-cuarto/10">
               <div className="flex items-center justify-between gap-[0.75em]">
                 <div className="flex items-center gap-[0.6em] min-w-0">
                   {branding?.logoUrl ? (
@@ -73,10 +73,6 @@ function Sidebar({ isOpen, onClose }) {
                 >
                   <FontAwesomeIcon icon={faAngleLeft} />
                 </button>
-              </div>
-              <div className="mt-[0.75em]">
-                <p className="text-[0.65em] uppercase tracking-[0.25em] text-segundo/70 font-medium">Tableros</p>
-                <p className="text-[0.85em] text-cuarto/50 font-roboto truncate mt-[0.1em]">{usuario?.nombre ?? ''}</p>
               </div>
             </div>
 

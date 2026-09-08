@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCubes, faPen, faListCheck, faTrash, faCircleInfo, faFlag, faLock } from '@fortawesome/free-solid-svg-icons';
+import { faCubes, faPen, faListCheck, faTrash, faCircleInfo, faFlag, faLock, faCircleCheck } from '@fortawesome/free-solid-svg-icons';
 import Badge from '../../../components/Badge';
 import ModuleInfoModal from './ModuleInfoModal';
 import useIsTouchDevice from '../../../hooks/useIsTouchDevice';
@@ -21,15 +21,21 @@ function ordenarPorPrioridad(reqs, getPrioridad) {
 }
 
 function ModuleCard({ module, onView, onEdit, onRemove, dragHandle }) {
-  const { getEstado, getPrioridad } = useEstadosPrioridades();
+  const { getEstado, getPrioridad, esEstadoFinal } = useEstadosPrioridades();
   const { puedeModificarItem } = usePermisosTablero();
   const puedeEditar = puedeModificarItem(module);
   const isTouch = useIsTouchDevice();
   const [infoOpen, setInfoOpen] = useState(false);
   const [porPrioridad, setPorPrioridad] = useDraft(`modcard_prio_${module.id}`, false);
   const visibilityClass = isTouch ? 'opacity-100' : 'opacity-0 group-hover:opacity-100';
-  const reqsBase = module.requerimientos ?? [];
-  const reqs = porPrioridad ? ordenarPorPrioridad(reqsBase, getPrioridad) : reqsBase;
+  // La previsualización solo muestra lo que falta por hacer: ver aquí tareas ya
+  // entregadas es ruido. El total se conserva para el contador "pendientes/total".
+  const todos = module.requerimientos ?? [];
+  const total = todos.length;
+  const pendientesBase = todos.filter((r) => !r.completado);
+  const completados = total - pendientesBase.length;
+  const reqs = porPrioridad ? ordenarPorPrioridad(pendientesBase, getPrioridad) : pendientesBase;
+  const entregado = esEstadoFinal(module.estado);
 
   return (
     <div
@@ -129,16 +135,27 @@ function ModuleCard({ module, onView, onEdit, onRemove, dragHandle }) {
                 Prioridad
               </button>
             )}
-            <span className="ml-auto text-[0.75em] text-segundo/60 font-poppins font-semibold">
-              {reqs.length}
+            <span className="ml-auto text-[0.75em] font-poppins font-semibold tabular-nums">
+              <span className="text-segundo">{reqs.length}</span>
+              {total > 0 && <span className="text-cuarto/30"> / {total}</span>}
             </span>
           </div>
 
           <div className="sm:h-[9.5em] overflow-y-auto">
             {reqs.length === 0 ? (
-              <div className="h-[5em] sm:h-full flex items-center justify-center border border-dashed border-cuarto/15 rounded-[0.5em]">
-                <p className="text-[0.75em] text-cuarto/20 italic font-roboto">Sin requerimientos aún</p>
-              </div>
+              total === 0 ? (
+                <div className="h-[5em] sm:h-full flex items-center justify-center border border-dashed border-cuarto/15 rounded-[0.5em]">
+                  <p className="text-[0.75em] text-cuarto/20 italic font-roboto">Sin requerimientos aún</p>
+                </div>
+              ) : (
+                // Hay requerimientos pero todos entregados: se lee como logro,
+                // no como vacío (que sugeriría que no hay nada).
+                <div className="h-[5em] sm:h-full flex flex-col items-center justify-center gap-[0.4em] border border-dashed border-segundo/20 rounded-[0.5em]">
+                  <FontAwesomeIcon icon={faCircleCheck} className="text-segundo/70 text-[1.4em]" />
+                  <p className="text-[0.8em] text-cuarto/70 font-poppins font-medium">Todo completado</p>
+                  <p className="text-[0.7em] text-cuarto/35 font-roboto">{completados} entregado{completados === 1 ? '' : 's'}</p>
+                </div>
+              )
             ) : (
               <ul className="flex flex-col gap-[0.4em] pr-[0.1em]">
                 {reqs.map((req, index) => (
@@ -167,11 +184,17 @@ function ModuleCard({ module, onView, onEdit, onRemove, dragHandle }) {
               {(module.observaciones ?? []).length > 0 ? `${module.observaciones.length} obs.` : 'Sin obs.'}
             </span>
             {module.fecha_entrega ? (
-              <span className="text-[0.75em] font-roboto font-semibold truncate text-segundo">
-                Entrega: {formatearFecha(module.fecha_entrega)}
+              // Ya entregado, la misma fecha deja de ser un compromiso pendiente y
+              // pasa a leerse como el hito cumplido; con "Entrega:" parecía que
+              // todavía faltaba.
+              <span className={`flex items-center gap-[0.3em] text-[0.75em] font-roboto font-semibold truncate ${entregado ? 'text-segundo/70' : 'text-segundo'}`}>
+                {entregado && <FontAwesomeIcon icon={faCircleCheck} className="text-[0.9em] flex-shrink-0" />}
+                {entregado ? 'Entregado' : 'Entrega'}: {formatearFecha(module.fecha_entrega)}
               </span>
             ) : (
-              <span className="text-[0.75em] text-cuarto/20 font-roboto italic">Sin fecha de entrega</span>
+              <span className="text-[0.75em] text-cuarto/20 font-roboto italic">
+                {entregado ? 'Entregado' : 'Sin fecha de entrega'}
+              </span>
             )}
           </div>
           <button

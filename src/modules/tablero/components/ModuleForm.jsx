@@ -1,15 +1,15 @@
 import { useState } from 'react';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCubes, faAlignLeft } from '@fortawesome/free-solid-svg-icons';
-import Input from '../../../components/Input';
-import Button from '../../../components/Button';
+import { faCubes, faSliders } from '@fortawesome/free-solid-svg-icons';
+import { Campo, Seccion, ErrorAviso, inputClass, areaClass } from '../../../components/FormKit';
 import DeliveryFields from './DeliveryFields';
 import StatusFields from './StatusFields';
 import VisibilidadToggle from './VisibilidadToggle';
 import { useEstadosPrioridades } from '../contexts/EstadosPrioridadesContext';
 import usePermisosTablero from '../hooks/usePermisosTablero';
 
-function ModuleForm({ onSubmit, onCancel, initialValues }) {
+export const MODULE_FORM_ID = 'form-modulo';
+
+function ModuleForm({ onSubmit, initialValues, onLoadingChange }) {
   const { esEstadoFinal } = useEstadosPrioridades();
   const { puedeMarcarVisibilidad } = usePermisosTablero();
   const isEdit = Boolean(initialValues);
@@ -20,14 +20,20 @@ function ModuleForm({ onSubmit, onCancel, initialValues }) {
   const [fechaEntrega, setFechaEntrega] = useState(initialValues?.fecha_entrega ?? '');
   const [diasMaximos, setDiasMaximos] = useState(initialValues?.dias_maximos ?? '');
   const [visibilidad, setVisibilidad] = useState(initialValues?.visibilidad ?? 'publico');
-  const [loading, setLoading] = useState(false);
+  const [tocado, setTocado] = useState(false);
   const [error, setError] = useState('');
+
+  const errorNombre = !nombre.trim() ? 'El nombre es obligatorio' : '';
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!nombre.trim()) return setError('El nombre es obligatorio.');
+    if (errorNombre) {
+      setTocado(true);
+      setError('Corrige los campos marcados.');
+      return;
+    }
     setError('');
-    setLoading(true);
+    onLoadingChange?.(true);
     try {
       await onSubmit({
         nombre: nombre.trim(),
@@ -38,58 +44,58 @@ function ModuleForm({ onSubmit, onCancel, initialValues }) {
         dias_maximos: diasMaximos !== '' ? parseInt(diasMaximos, 10) : null,
         ...(puedeMarcarVisibilidad ? { visibilidad } : {}),
       });
+    } catch (err) {
+      setError(err.response?.data?.message ?? err.message);
     } finally {
-      setLoading(false);
+      onLoadingChange?.(false);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-[1em]">
-      <Input
-        icon={<FontAwesomeIcon icon={faCubes} />}
-        type="text"
-        placeholder="Nombre del módulo"
-        value={nombre}
-        onChange={(e) => setNombre(e.target.value)}
-        required
-      />
-      <Input
-        icon={<FontAwesomeIcon icon={faAlignLeft} />}
-        type="text"
-        placeholder="Descripción (opcional)"
-        value={descripcion}
-        onChange={(e) => setDescripcion(e.target.value)}
-      />
+    <form id={MODULE_FORM_ID} onSubmit={handleSubmit} noValidate className="flex flex-col gap-[1.5em]">
+      <Seccion icon={faCubes} titulo="Información">
+        <Campo label="Nombre del módulo" required error={tocado && errorNombre}>
+          <input
+            type="text"
+            value={nombre}
+            onChange={(e) => { setNombre(e.target.value); setError(''); }}
+            onBlur={() => setTocado(true)}
+            placeholder="Ej. Autenticación"
+            autoFocus
+            className={inputClass(tocado && errorNombre)}
+          />
+        </Campo>
+        <Campo label="Descripción" hint="Opcional">
+          <textarea
+            value={descripcion}
+            onChange={(e) => setDescripcion(e.target.value)}
+            rows={2}
+            placeholder="Qué abarca este módulo"
+            className={areaClass(false)}
+          />
+        </Campo>
+      </Seccion>
 
-      <StatusFields estado={estado} onEstadoChange={setEstado} prioridad={prioridad} onPrioridadChange={setPrioridad} />
+      <Seccion icon={faSliders} titulo="Clasificación y entrega">
+        <StatusFields estado={estado} onEstadoChange={setEstado} prioridad={prioridad} onPrioridadChange={setPrioridad} />
 
-      {isEdit && (
-        <DeliveryFields
-          fecha={fechaEntrega}
-          onFechaChange={setFechaEntrega}
-          diasMaximos={diasMaximos}
-          onDiasMaximosChange={setDiasMaximos}
-        />
-      )}
+        {isEdit && (
+          <DeliveryFields
+            fecha={fechaEntrega}
+            onFechaChange={setFechaEntrega}
+            diasMaximos={diasMaximos}
+            onDiasMaximosChange={setDiasMaximos}
+          />
+        )}
 
-      {puedeMarcarVisibilidad && (
-        <VisibilidadToggle value={visibilidad} onChange={setVisibilidad} />
-      )}
+        {puedeMarcarVisibilidad && (
+          <Campo label="Visibilidad">
+            <VisibilidadToggle value={visibilidad} onChange={setVisibilidad} />
+          </Campo>
+        )}
+      </Seccion>
 
-      {error && (
-        <p role="alert" className="text-[0.8em] text-quinto-claro text-center bg-quinto/10 border border-quinto/20 rounded-[0.5em] py-[0.5em] px-[0.75em]">
-          {error}
-        </p>
-      )}
-
-      <div className="flex flex-col-reverse sm:flex-row gap-[0.75em] pt-[0.25em]">
-        <Button type="button" variant="ghost" onClick={onCancel}>
-          Cancelar
-        </Button>
-        <Button type="submit" loading={loading}>
-          {isEdit ? 'Guardar cambios' : 'Crear módulo'}
-        </Button>
-      </div>
+      <ErrorAviso>{error}</ErrorAviso>
     </form>
   );
 }

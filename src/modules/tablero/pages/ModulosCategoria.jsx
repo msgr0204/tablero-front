@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowLeft, faCubes, faTag, faFlag } from '@fortawesome/free-solid-svg-icons';
@@ -10,7 +10,8 @@ import ConfirmDeleteModal from '../../../components/ConfirmDeleteModal';
 import SearchBar from '../../../components/SearchBar';
 import FilterDropdown from '../../../components/FilterDropdown';
 import CreateModuleButton from '../components/CreateModuleButton';
-import ModuleForm from '../components/ModuleForm';
+import ModuleForm, { MODULE_FORM_ID } from '../components/ModuleForm';
+import ModalActions from '../../../components/ModalActions';
 import ModuleCard from '../components/ModuleCard';
 import SortableModuleCard from '../components/SortableModuleCard';
 import { TableroSkeleton } from '../components/TableroSkeletons';
@@ -30,15 +31,26 @@ function ModulosCategoria() {
   const base = useTableroBase();
   const { puedeModificarItem } = usePermisosTablero();
   const { branding } = useBranding();
-  const { estados, prioridades } = useEstadosPrioridades();
+  const { estados, prioridades, esEstadoFinal } = useEstadosPrioridades();
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [editingModule, setEditingModule] = useState(null);
   const [activeModule, setActiveModule] = useState(null);
+  const [tab, setTab] = useState('activos');
+  const [guardandoModulo, setGuardandoModulo] = useState(false);
   const { category: categoria, fetchCategory } = useCategory(categoriaId);
   const { modules, loading, fetchModules, createModule, updateModule, removeModule, reorderModules } = useModules(categoriaId);
   const { isOpen: isDeleteOpen, confirming: deleting, requestRemove, cancelRemove, confirmRemove, pendingId: deletingId } = useConfirmDelete(removeModule);
-  const { result: filteredModules, query, setQuery, sort, setSort, filters, setFilter, clearFilters, hasActiveFilters } = useSearchSort(modules, { persistKey: 'modulos' });
-  const isReorderDisabled = query.trim() !== '' || sort !== 'custom' || hasActiveFilters;
+
+  // Un módulo "entregado" es el que está en un estado de cierre. Se separan para
+  // que lo terminado no se mezcle con lo que sigue en curso; la búsqueda y el
+  // orden aplican dentro de la pestaña activa.
+  const activos = useMemo(() => modules.filter((m) => !esEstadoFinal(m.estado)), [modules, esEstadoFinal]);
+  const entregados = useMemo(() => modules.filter((m) => esEstadoFinal(m.estado)), [modules, esEstadoFinal]);
+  const listaTab = tab === 'entregados' ? entregados : activos;
+
+  const { result: filteredModules, query, setQuery, sort, setSort, filters, setFilter, clearFilters, hasActiveFilters } = useSearchSort(listaTab, { persistKey: 'modulos' });
+  // Reordenar solo tiene sentido en los activos y sin filtros que alteren el orden.
+  const isReorderDisabled = tab !== 'activos' || query.trim() !== '' || sort !== 'custom' || hasActiveFilters;
   const sensors = useDragSensors();
   // Crear módulos hereda la autoría de la categoría padre: solo quien la creó
   // (o el dueño del tablero) puede agregarle módulos.
@@ -72,9 +84,12 @@ function ModulosCategoria() {
   const handleDragEnd = ({ active, over }) => {
     setActiveModule(null);
     if (!over || active.id === over.id) return;
-    const oldIndex = modules.findIndex((m) => m.id === active.id);
-    const newIndex = modules.findIndex((m) => m.id === over.id);
-    reorderModules(arrayMove(modules, oldIndex, newIndex).map((m) => m.id));
+    // Solo se reordenan los activos; los entregados se conservan al final en su
+    // orden actual para no perder su posición al persistir el nuevo orden.
+    const oldIndex = activos.findIndex((m) => m.id === active.id);
+    const newIndex = activos.findIndex((m) => m.id === over.id);
+    const activosReordenados = arrayMove(activos, oldIndex, newIndex).map((m) => m.id);
+    reorderModules([...activosReordenados, ...entregados.map((m) => m.id)]);
   };
 
   return (
@@ -107,12 +122,17 @@ function ModulosCategoria() {
 
         {!loading && modules.length > 0 && (
           <>
+            <div className="flex items-center gap-[0.4em] mb-[1em] p-[0.25em] rounded-[0.6em] bg-primero-claro border border-cuarto/10 w-fit">
+              <TabModulos label="Activos" total={activos.length} activo={tab === 'activos'} onClick={() => setTab('activos')} />
+              <TabModulos label="Entregados" total={entregados.length} activo={tab === 'entregados'} onClick={() => setTab('entregados')} />
+            </div>
+
             <SearchBar
               query={query}
               onQuery={setQuery}
               sort={sort}
               onSort={setSort}
-              placeholder="Buscar módulo..."
+              placeholder={tab === 'entregados' ? 'Buscar en entregados...' : 'Buscar módulo...'}
               hasExtraFilters={hasActiveFilters}
               onClearExtraFilters={clearFilters}
             >
@@ -134,7 +154,11 @@ function ModulosCategoria() {
 
             {filteredModules.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-[5em] gap-[0.5em]">
-                <p className="text-[0.9em] text-cuarto/40 font-roboto">Sin resultados para "{query}"</p>
+                <p className="text-[0.9em] text-cuarto/40 font-roboto">
+                  {listaTab.length === 0
+                    ? (tab === 'entregados' ? 'Aún no hay módulos entregados' : 'No hay módulos activos')
+                    : `Sin resultados para "${query}"`}
+                </p>
               </div>
             ) : (
               <DndContext sensors={sensors} collisionDetection={closestCenter} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
@@ -171,16 +195,46 @@ function ModulosCategoria() {
         )}
       </main>
 
-      <Modal isOpen={isCreateOpen} onClose={() => setIsCreateOpen(false)} title="Nuevo módulo">
-        <ModuleForm onSubmit={handleCreateModule} onCancel={() => setIsCreateOpen(false)} />
+      <Modal
+        isOpen={isCreateOpen}
+        onClose={() => setIsCreateOpen(false)}
+        eyebrow={categoria?.nombre}
+        title="Nuevo módulo"
+        icon={faCubes}
+        size="lg"
+        footer={
+          <ModalActions
+            form={MODULE_FORM_ID}
+            onCancel={() => setIsCreateOpen(false)}
+            confirmLabel="Crear módulo"
+            loading={guardandoModulo}
+          />
+        }
+      >
+        <ModuleForm onSubmit={handleCreateModule} onLoadingChange={setGuardandoModulo} />
       </Modal>
 
-      <Modal isOpen={Boolean(editingModule)} onClose={() => setEditingModule(null)} title="Editar módulo">
+      <Modal
+        isOpen={Boolean(editingModule)}
+        onClose={() => setEditingModule(null)}
+        eyebrow="Editar"
+        title={editingModule?.nombre ?? 'Editar módulo'}
+        icon={faCubes}
+        size="lg"
+        footer={
+          <ModalActions
+            form={MODULE_FORM_ID}
+            onCancel={() => setEditingModule(null)}
+            confirmLabel="Guardar cambios"
+            loading={guardandoModulo}
+          />
+        }
+      >
         {editingModule && (
           <ModuleForm
             initialValues={editingModule}
             onSubmit={handleUpdateModule}
-            onCancel={() => setEditingModule(null)}
+            onLoadingChange={setGuardandoModulo}
           />
         )}
       </Modal>
@@ -193,6 +247,25 @@ function ModulosCategoria() {
         onConfirm={confirmRemove}
       />
     </div>
+  );
+}
+
+function TabModulos({ label, total, activo, onClick }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-pressed={activo}
+      className={[
+        'flex items-center gap-[0.5em] px-[0.9em] h-[2.25em] rounded-[0.5em] text-[0.8em] font-poppins font-semibold transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-segundo/50',
+        activo ? 'bg-segundo/15 text-segundo border border-segundo/30' : 'text-cuarto/50 hover:text-cuarto/80 border border-transparent',
+      ].join(' ')}
+    >
+      {label}
+      <span className={`text-[0.85em] tabular-nums rounded-full px-[0.5em] py-[0.05em] ${activo ? 'bg-segundo/20 text-segundo' : 'bg-cuarto/10 text-cuarto/40'}`}>
+        {total}
+      </span>
+    </button>
   );
 }
 

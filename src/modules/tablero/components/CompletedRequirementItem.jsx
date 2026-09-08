@@ -4,6 +4,7 @@ import Badge from '../../../components/Badge';
 import useIsTouchDevice from '../../../hooks/useIsTouchDevice';
 import { useEstadosPrioridades } from '../contexts/EstadosPrioridadesContext';
 import usePermisosTablero from '../hooks/usePermisosTablero';
+import { formatearFecha } from '../../../lib/formatFecha';
 
 function CompletedRequirementItem({ req, index, onRemove, onToggle, selected, onSelect }) {
   const isTouch = useIsTouchDevice();
@@ -35,6 +36,13 @@ function CompletedRequirementItem({ req, index, onRemove, onToggle, selected, on
       >
         {req.texto}
       </button>
+      {/* Fecha real en que se completó, no la planeada: en un requerimiento ya
+          entregado el dato que importa es cuándo se cerró. */}
+      {req.completado_at && (
+        <span className="hidden sm:inline text-[0.7em] text-segundo/50 font-roboto whitespace-nowrap flex-shrink-0">
+          Entregado: {formatearFecha(req.completado_at)}
+        </span>
+      )}
       <Badge config={getEstado(req.estado)} size="sm" />
       <Badge config={getPrioridad(req.prioridad)} size="sm" />
       <Badge config={getTipo(req.tipo)} size="sm" />

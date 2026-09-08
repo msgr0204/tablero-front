@@ -63,7 +63,12 @@ function App() {
     return (
         <AuthProvider>
             <AmbitoProvider>
-                <Router>
+                {/* Future flags de React Router v6: adoptan desde ya el
+                    comportamiento que será estándar en v7 (envolver los updates
+                    de estado en startTransition y resolver rutas splat de forma
+                    relativa), para que la futura migración no cambie nada y sin
+                    los warnings en consola. */}
+                <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
                     <Routes>
                         <Route path="/auth" element={<AuthLayout />}>
                             <Route path="login" element={<Login />} />

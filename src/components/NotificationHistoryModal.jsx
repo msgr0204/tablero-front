@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faChevronLeft, faChevronRight, faCheckDouble, faListCheck, faXmark } from '@fortawesome/free-solid-svg-icons';
+import { faChevronLeft, faChevronRight, faCheckDouble, faListCheck, faXmark, faClockRotateLeft } from '@fortawesome/free-solid-svg-icons';
 import Modal from './Modal';
 import { iconoEntidad } from '../lib/notificacionFormato';
 
@@ -64,7 +64,7 @@ function NotificationHistoryModal({
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Historial de notificaciones" size="lg">
+    <Modal isOpen={isOpen} onClose={onClose} eyebrow="Actividad" title="Historial de notificaciones" icon={faClockRotateLeft} size="lg">
       <div className="flex flex-col gap-[0.6em]">
         {!loading && historial.length > 0 && (
           <div className="flex items-center gap-[0.5em] flex-wrap pb-[0.6em] border-b border-cuarto/10">

@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCheck } from '@fortawesome/free-solid-svg-icons';
+import { faCheck, faUsers } from '@fortawesome/free-solid-svg-icons';
 import Modal from '../../../components/Modal';
 import useEquipo from '../hooks/useEquipo';
 
@@ -18,7 +18,7 @@ function EquipoModal({ isOpen, onClose }) {
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Mi equipo" size="md">
+    <Modal isOpen={isOpen} onClose={onClose} eyebrow="Tablero personal" title="Mi equipo" icon={faUsers} size="md">
       <div className="flex flex-col gap-[1em]">
         <p className="text-[0.8em] text-cuarto/60 font-roboto leading-relaxed">
           Elige quién puede ver y colaborar en tu tablero personal
