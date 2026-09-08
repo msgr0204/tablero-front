@@ -17,7 +17,8 @@ function CategoryForm({ onSubmit, onError, onLoadingChange }) {
   const [estado, setEstado] = useState('');
   const [prioridad, setPrioridad] = useState('');
   const [fechaEntrega, setFechaEntrega] = useState('');
-  const [diasMaximos, setDiasMaximos] = useState('');
+  // Días máximos desactivado: ver nota en DeliveryFields.
+  // const [diasMaximos, setDiasMaximos] = useState('');
   const [visibilidad, setVisibilidad] = useState('publico');
   const [tocado, setTocado] = useState(false);
   const [error, setError] = useState('');
@@ -41,7 +42,7 @@ function CategoryForm({ onSubmit, onError, onLoadingChange }) {
         estado: estado || null,
         prioridad: esFinal ? null : (prioridad || null),
         fecha_entrega: fechaEntrega || null,
-        dias_maximos: diasMaximos !== '' ? parseInt(diasMaximos, 10) : null,
+        // dias_maximos: diasMaximos !== '' ? parseInt(diasMaximos, 10) : null,
         ...(puedeMarcarVisibilidad ? { visibilidad } : {}),
       });
     } catch (err) {
@@ -107,8 +108,7 @@ function CategoryForm({ onSubmit, onError, onLoadingChange }) {
         <DeliveryFields
           fecha={fechaEntrega}
           onFechaChange={setFechaEntrega}
-          diasMaximos={diasMaximos}
-          onDiasMaximosChange={setDiasMaximos}
+          /* diasMaximos={diasMaximos} onDiasMaximosChange={setDiasMaximos} */
         />
 
         {puedeMarcarVisibilidad && (

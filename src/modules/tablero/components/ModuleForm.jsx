@@ -18,7 +18,8 @@ function ModuleForm({ onSubmit, initialValues, onLoadingChange }) {
   const [estado, setEstado] = useState(initialValues?.estado ?? '');
   const [prioridad, setPrioridad] = useState(initialValues?.prioridad ?? '');
   const [fechaEntrega, setFechaEntrega] = useState(initialValues?.fecha_entrega ?? '');
-  const [diasMaximos, setDiasMaximos] = useState(initialValues?.dias_maximos ?? '');
+  // Días máximos desactivado: ver nota en DeliveryFields.
+  // const [diasMaximos, setDiasMaximos] = useState(initialValues?.dias_maximos ?? '');
   const [visibilidad, setVisibilidad] = useState(initialValues?.visibilidad ?? 'publico');
   const [tocado, setTocado] = useState(false);
   const [error, setError] = useState('');
@@ -41,7 +42,7 @@ function ModuleForm({ onSubmit, initialValues, onLoadingChange }) {
         estado: estado || null,
         prioridad: (estado && esEstadoFinal(estado)) ? null : (prioridad || null),
         fecha_entrega: fechaEntrega || null,
-        dias_maximos: diasMaximos !== '' ? parseInt(diasMaximos, 10) : null,
+        // dias_maximos: diasMaximos !== '' ? parseInt(diasMaximos, 10) : null,
         ...(puedeMarcarVisibilidad ? { visibilidad } : {}),
       });
     } catch (err) {
@@ -83,8 +84,7 @@ function ModuleForm({ onSubmit, initialValues, onLoadingChange }) {
           <DeliveryFields
             fecha={fechaEntrega}
             onFechaChange={setFechaEntrega}
-            diasMaximos={diasMaximos}
-            onDiasMaximosChange={setDiasMaximos}
+            /* diasMaximos={diasMaximos} onDiasMaximosChange={setDiasMaximos} */
           />
         )}
 

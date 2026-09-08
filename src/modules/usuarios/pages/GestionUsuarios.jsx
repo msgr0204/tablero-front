@@ -112,14 +112,14 @@ function GestionUsuarios() {
           <div className="flex flex-col gap-[0.85em] xl:flex-row xl:items-end">
             <div className="grid flex-1 grid-cols-1 gap-[0.85em] md:grid-cols-2 xl:grid-cols-3">
               <FiltroLabel icon={faSearch} texto="Buscar">
-                <div className="flex h-[2.75em] items-center gap-[0.6em] rounded-[0.6em] border border-cuarto/10 bg-primero-claro/60 px-[0.85em] transition focus-within:border-segundo/60 focus-within:ring-1 focus-within:ring-segundo/40">
+                <div className="flex h-[2.75em] items-center gap-[0.6em] rounded-[0.6em] border border-cuarto/10 bg-primero-claro/60 px-[0.85em] text-[0.9em] transition focus-within:border-segundo/60 focus-within:ring-1 focus-within:ring-segundo/40">
                   <FontAwesomeIcon icon={faSearch} className="text-[0.8em] text-segundo/70 flex-shrink-0" />
                   <input
                     type="text"
                     value={busqueda}
                     onChange={(e) => setBusqueda(e.target.value)}
                     placeholder="Nombre, correo o documento"
-                    className="min-w-0 flex-1 bg-transparent text-[0.9em] font-roboto text-cuarto placeholder:text-cuarto/30 outline-none"
+                    className="min-w-0 flex-1 bg-transparent font-roboto text-cuarto placeholder:text-cuarto/30 outline-none"
                   />
                   {busqueda && (
                     <button type="button" onClick={() => setBusqueda('')} aria-label="Limpiar búsqueda" className="text-cuarto/40 hover:text-cuarto transition-colors flex-shrink-0">

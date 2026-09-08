@@ -2,7 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
-  faAngleLeft, faPowerOff, faBuilding, faUser, faUsers,
+  faAngleLeft, faPowerOff, faBuilding, faUser, faUsers, faClockRotateLeft,
 } from '@fortawesome/free-solid-svg-icons';
 import { useAuth } from '../context/AuthContext';
 import { useBranding } from '../context/BrandingContext';
@@ -81,6 +81,7 @@ function Sidebar({ isOpen, onClose }) {
                 <ItemSidebar icon={faBuilding} label="Tablero de empresa" onClick={() => ir('/tablero')} />
                 <ItemSidebar icon={faUser} label="Mi tablero" onClick={() => ir('/tablero-personal')} />
                 <ItemSidebar icon={faUsers} label="Tableros de equipo" onClick={() => ir('/equipos')} />
+                <ItemSidebar icon={faClockRotateLeft} label="Auditoría" onClick={() => ir('/auditoria')} />
               </ul>
             </nav>
 

@@ -74,8 +74,10 @@ function UserMenu() {
     { icon: faUserPlus, label: 'Gestión de usuarios', ruta: '/tablero/usuarios', disabled: !esAdmin },
     { icon: faChartLine, label: 'Dashboard ejecutivo', ruta: '/tablero/dashboard' },
     { icon: faGaugeHigh, label: 'Métricas', ruta: '/tablero/metricas' },
-    { icon: faSliders, label: 'Estados y prioridades', ruta: '/tablero/configuracion-estados' },
-    { icon: faPalette, label: 'Plantillas de marca', ruta: '/auth/seleccionar-plantilla' },
+    // El catálogo y la marca son configuración compartida de la empresa: las
+    // gestiona un administrador.
+    { icon: faSliders, label: 'Estados y prioridades', ruta: '/tablero/configuracion-estados', disabled: !esAdmin },
+    { icon: faPalette, label: 'Plantillas de marca', ruta: '/auth/seleccionar-plantilla', disabled: !esAdmin },
   ];
 
   return (

@@ -17,7 +17,7 @@ import { formatearFecha, formatearFechaHora } from '../../../lib/formatFecha';
 function RequirementItem({ req, index, onUpdate, onRemove, onAddObs, onToggle, selected, onSelect, onVisto }) {
   const isTouch = useIsTouchDevice();
   const { getEstado, getPrioridad, getTipo, esEstadoFinal } = useEstadosPrioridades();
-  const { puedeModificarItem, puedeMarcarFinal } = usePermisosTablero();
+  const { puedeModificarItem, puedeCerrar } = usePermisosTablero();
   const puedeEditar = puedeModificarItem(req);
   const [editing, setEditing] = useState(false);
   const [texto, setTexto] = useState(req.texto);
@@ -25,7 +25,8 @@ function RequirementItem({ req, index, onUpdate, onRemove, onAddObs, onToggle, s
   const [prioridad, setPrioridad] = useState(req.prioridad ?? '');
   const [tipo, setTipo] = useState(req.tipo ?? '');
   const [fechaEntrega, setFechaEntrega] = useState(req.fecha_entrega ?? '');
-  const [diasMaximos, setDiasMaximos] = useState(req.dias_maximos ?? '');
+  // Días máximos desactivado: ver nota en DeliveryFields.
+  // const [diasMaximos, setDiasMaximos] = useState(req.dias_maximos ?? '');
   const [saving, setSaving] = useState(false);
   const [confirmingDiscard, setConfirmingDiscard] = useState(false);
   const inputRef = useRef(null);
@@ -37,7 +38,7 @@ function RequirementItem({ req, index, onUpdate, onRemove, onAddObs, onToggle, s
     (esFinal ? null : (prioridad || null)) !== (req.prioridad ?? null) ||
     (esFinal ? null : (tipo || null)) !== (req.tipo ?? null) ||
     (fechaEntrega || null) !== (req.fecha_entrega ?? null) ||
-    (diasMaximos !== '' ? parseInt(diasMaximos, 10) : null) !== (req.dias_maximos ?? null);
+    false; // (diasMaximos !== '' ? parseInt(diasMaximos, 10) : null) !== (req.dias_maximos ?? null);
 
   const { attributes, listeners, setNodeRef, setActivatorNodeRef, transform, transition, isDragging } = useSortable({ id: req.id });
 
@@ -57,7 +58,7 @@ function RequirementItem({ req, index, onUpdate, onRemove, onAddObs, onToggle, s
     setPrioridad(req.prioridad ?? '');
     setTipo(req.tipo ?? '');
     setFechaEntrega(req.fecha_entrega ?? '');
-    setDiasMaximos(req.dias_maximos ?? '');
+    // setDiasMaximos(req.dias_maximos ?? '');
     setEditing(true);
   };
 
@@ -75,7 +76,7 @@ function RequirementItem({ req, index, onUpdate, onRemove, onAddObs, onToggle, s
         prioridad: esFinal ? null : (prioridad || null),
         tipo: esFinal ? null : (tipo || null),
         fecha_entrega: fechaEntrega || null,
-        dias_maximos: diasMaximos !== '' ? parseInt(diasMaximos, 10) : null,
+        // dias_maximos: diasMaximos !== '' ? parseInt(diasMaximos, 10) : null,
       });
       setEditing(false);
     } finally {
@@ -105,13 +106,13 @@ function RequirementItem({ req, index, onUpdate, onRemove, onAddObs, onToggle, s
     <li ref={setNodeRef} style={style} className="flex flex-col gap-[0.5em] group/req">
       <div className={`flex items-center gap-[0.6em] border rounded-[0.6em] px-[0.85em] py-[0.7em] transition-colors duration-200 min-w-0 ${selected ? 'bg-segundo/10 border-segundo/40' : 'bg-primero/40 border-cuarto/10 hover:border-cuarto/20'}`}>
         <button
-          onClick={() => puedeMarcarFinal && onToggle(req.id, true)}
-          disabled={!puedeMarcarFinal}
+          onClick={() => puedeCerrar && onToggle(req.id, true)}
+          disabled={!puedeCerrar}
           aria-label="Marcar como completado"
-          title={puedeMarcarFinal ? undefined : 'Solo el dueño puede completar'}
+          title={puedeCerrar ? undefined : 'Solo el dueño del tablero puede completar'}
           className={[
             'w-[1.4em] h-[1.4em] rounded-full border-2 border-cuarto/25 transition-all duration-200 flex-shrink-0 focus:outline-none',
-            puedeMarcarFinal ? 'hover:border-segundo hover:bg-segundo/10' : 'opacity-40 cursor-not-allowed',
+            puedeCerrar ? 'hover:border-segundo hover:bg-segundo/10' : 'opacity-40 cursor-not-allowed',
           ].join(' ')}
         />
         <span className="text-[0.8em] text-segundo/40 font-poppins font-semibold w-[1.5em] flex-shrink-0 tabular-nums">
@@ -152,9 +153,10 @@ function RequirementItem({ req, index, onUpdate, onRemove, onAddObs, onToggle, s
                   Entrega: {formatearFecha(req.fecha_entrega)}
                 </span>
               )}
+              {/* Código D5DM (días máximos) desactivado — ver nota en DeliveryFields.
               {req.dias_maximos && (
                 <span className="text-[0.75em] font-mono font-bold tracking-widest text-cuarto/25">D{req.dias_maximos}DM</span>
-              )}
+              )} */}
             </div>
           </div>
         )}
@@ -219,7 +221,7 @@ function RequirementItem({ req, index, onUpdate, onRemove, onAddObs, onToggle, s
             conTipo
             size="sm"
           />
-          <DeliveryFields fecha={fechaEntrega} onFechaChange={setFechaEntrega} diasMaximos={diasMaximos} onDiasMaximosChange={setDiasMaximos} />
+          <DeliveryFields fecha={fechaEntrega} onFechaChange={setFechaEntrega} /* diasMaximos={diasMaximos} onDiasMaximosChange={setDiasMaximos} */ />
         </div>
       )}
 

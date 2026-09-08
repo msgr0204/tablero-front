@@ -3,6 +3,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus, faTrash, faCommentDots, faPen, faCheck, faXmark } from '@fortawesome/free-solid-svg-icons';
 import useIsTouchDevice from '../../../hooks/useIsTouchDevice';
 import useDraft from '../../../hooks/useDraft';
+import ConfirmDeleteModal from '../../../components/ConfirmDeleteModal';
+import usePermisosTablero from '../hooks/usePermisosTablero';
 import { formatearFechaHora } from '../../../lib/formatFecha';
 
 // Crece con el contenido (de 2 líneas hasta ~10), sin dejar de tener scroll
@@ -14,10 +16,29 @@ function ajustarAlto(el) {
 }
 
 function ObservationItem({ obs, onRemove, onEdit }) {
+  // Editar una observación ajena no lo permite nadie —reescribir lo que otro
+  // dijo falsea el registro—; borrarla queda para su autor o un administrador.
+  const { puedeEditarObservacion, puedeEliminarObservacion } = usePermisosTablero();
+  const puedeEditar = puedeEditarObservacion(obs);
+  const puedeEliminar = puedeEliminarObservacion(obs);
   const isTouch = useIsTouchDevice();
   const [editing, setEditing] = useState(false);
   const [texto, setTexto] = useState(obs.texto);
   const [saving, setSaving] = useState(false);
+  // Borrar una observación es irreversible desde la interfaz: se confirma, como
+  // el resto de eliminaciones del tablero.
+  const [confirmando, setConfirmando] = useState(false);
+  const [eliminando, setEliminando] = useState(false);
+
+  const confirmarEliminar = async () => {
+    setEliminando(true);
+    try {
+      await onRemove(obs.id);
+      setConfirmando(false);
+    } finally {
+      setEliminando(false);
+    }
+  };
   const areaRef = useRef(null);
 
   const isDirty = texto.trim() !== obs.texto;
@@ -92,7 +113,7 @@ function ObservationItem({ obs, onRemove, onEdit }) {
         <p className="text-[0.75em] text-cuarto/30 font-roboto mt-[0.3em]">{formatearFechaHora(obs.fecha)}</p>
       </div>
       <div className={`flex items-start gap-[0.1em] flex-shrink-0 ${isTouch ? 'opacity-100' : 'opacity-0 group-hover:opacity-100 focus-within:opacity-100'} transition-opacity duration-200`}>
-        {onEdit && (
+        {onEdit && puedeEditar && (
           <button
             onClick={empezarEdicion}
             aria-label="Editar observación"
@@ -101,14 +122,24 @@ function ObservationItem({ obs, onRemove, onEdit }) {
             <FontAwesomeIcon icon={faPen} className="text-[0.75em]" />
           </button>
         )}
+        {puedeEliminar && (
         <button
-          onClick={() => onRemove(obs.id)}
+          onClick={() => setConfirmando(true)}
           aria-label="Eliminar observación"
           className="text-quinto/40 hover:text-quinto-claro w-[2em] h-[2em] flex items-center justify-center transition-all duration-200 focus:outline-none"
         >
           <FontAwesomeIcon icon={faTrash} className="text-[0.75em]" />
         </button>
+        )}
       </div>
+
+      <ConfirmDeleteModal
+        isOpen={confirmando}
+        confirming={eliminando}
+        label="esta observación"
+        onCancel={() => setConfirmando(false)}
+        onConfirm={confirmarEliminar}
+      />
     </li>
   );
 }

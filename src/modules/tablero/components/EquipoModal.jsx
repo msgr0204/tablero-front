@@ -1,6 +1,7 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCheck, faUsers } from '@fortawesome/free-solid-svg-icons';
+import ConfirmDeleteModal from '../../../components/ConfirmDeleteModal';
 import Modal from '../../../components/Modal';
 import useEquipo from '../hooks/useEquipo';
 
@@ -11,10 +12,31 @@ function EquipoModal({ isOpen, onClose }) {
     if (isOpen) fetchEquipo();
   }, [isOpen, fetchEquipo]);
 
+  // Quitar el acceso saca a la persona del tablero y le oculta lo que estaba
+  // viendo, así que se confirma. Concederlo no destruye nada: va directo.
+  const [porRevocar, setPorRevocar] = useState(null);
+  const [revocando, setRevocando] = useState(false);
+
   const handleToggle = async (colaborador) => {
+    if (colaborador.tieneAcceso) {
+      setPorRevocar(colaborador);
+      return;
+    }
     try {
       await toggleAcceso(colaborador);
     } catch { /* el error ya queda en el hook */ }
+  };
+
+  const confirmarRevocar = async () => {
+    setRevocando(true);
+    try {
+      await toggleAcceso(porRevocar);
+      setPorRevocar(null);
+    } catch {
+      setPorRevocar(null);
+    } finally {
+      setRevocando(false);
+    }
   };
 
   return (
@@ -84,6 +106,14 @@ function EquipoModal({ isOpen, onClose }) {
           </ul>
         )}
       </div>
+
+      <ConfirmDeleteModal
+        isOpen={Boolean(porRevocar)}
+        confirming={revocando}
+        label={`el acceso de "${porRevocar?.nombre ?? ''}" a tu tablero`}
+        onCancel={() => setPorRevocar(null)}
+        onConfirm={confirmarRevocar}
+      />
     </Modal>
   );
 }

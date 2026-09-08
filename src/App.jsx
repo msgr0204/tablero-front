@@ -8,6 +8,7 @@ import ModulosCategoria from "./modules/tablero/pages/ModulosCategoria";
 import DetalleModulo from "./modules/tablero/pages/DetalleModulo";
 import ConfiguracionEstados from "./modules/tablero/pages/ConfiguracionEstados";
 import Equipos from "./modules/tablero/pages/Equipos";
+import Auditoria from "./modules/auditoria/pages/Auditoria";
 import Dashboard from "./modules/dashboard/pages/Dashboard";
 import Metricas from "./modules/metricas/pages/Metricas";
 import GestionUsuarios from "./modules/usuarios/pages/GestionUsuarios";
@@ -94,6 +95,9 @@ function App() {
                         <Route path="/tablero-personal/:categoriaId/modulos" element={<VistaPersonal><ModulosCategoria /></VistaPersonal>} />
                         <Route path="/tablero-personal/:categoriaId/modulos/:moduloId" element={<VistaPersonal><DetalleModulo /></VistaPersonal>} />
                         <Route path="/tablero-personal/configuracion-estados" element={<VistaPersonal><ConfiguracionEstados /></VistaPersonal>} />
+
+                        {/* Auditoría: el registro es del tenant, se ve en ámbito empresa */}
+                        <Route path="/auditoria" element={<VistaEmpresa><Auditoria /></VistaEmpresa>} />
 
                         {/* Tableros de equipo: galería de los tableros que me compartieron */}
                         <Route path="/equipos" element={<VistaEmpresa><Equipos /></VistaEmpresa>} />

@@ -14,7 +14,8 @@ function RequirementForm({ initialText = '', onSubmit, onLoadingChange }) {
   const [prioridad, setPrioridad] = useState('');
   const [tipo, setTipo] = useState('');
   const [fechaEntrega, setFechaEntrega] = useState('');
-  const [diasMaximos, setDiasMaximos] = useState('');
+  // Días máximos desactivado: ver nota en DeliveryFields.
+  // const [diasMaximos, setDiasMaximos] = useState('');
   const [tocado, setTocado] = useState(false);
   const [error, setError] = useState('');
 
@@ -37,7 +38,7 @@ function RequirementForm({ initialText = '', onSubmit, onLoadingChange }) {
         prioridad: esFinal ? null : (prioridad || null),
         tipo: esFinal ? null : (tipo || null),
         fecha_entrega: fechaEntrega || null,
-        dias_maximos: diasMaximos !== '' ? parseInt(diasMaximos, 10) : null,
+        // dias_maximos: diasMaximos !== '' ? parseInt(diasMaximos, 10) : null,
       });
     } catch (err) {
       setError(err.response?.data?.message ?? err.message);
@@ -74,8 +75,7 @@ function RequirementForm({ initialText = '', onSubmit, onLoadingChange }) {
         <DeliveryFields
           fecha={fechaEntrega}
           onFechaChange={setFechaEntrega}
-          diasMaximos={diasMaximos}
-          onDiasMaximosChange={setDiasMaximos}
+          /* diasMaximos={diasMaximos} onDiasMaximosChange={setDiasMaximos} */
         />
       </Seccion>
 

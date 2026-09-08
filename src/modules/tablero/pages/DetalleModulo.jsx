@@ -17,6 +17,7 @@ import RequirementItem from '../components/RequirementItem';
 import CompletedRequirementItem from '../components/CompletedRequirementItem';
 import RequirementAttachments from '../components/RequirementAttachments';
 import { DetalleModuloSkeleton } from '../components/TableroSkeletons';
+import auditoriaService from '../../auditoria/services/auditoriaService';
 import useModuleDetail from '../hooks/useModuleDetail';
 import usePermisosTablero from '../hooks/usePermisosTablero';
 import useSearchSort from '../../../hooks/useSearchSort';
@@ -54,6 +55,9 @@ function DetalleModulo() {
   useEffect(() => {
     fetchModule().then((found) => {
       if (!found) navigate(`${base}/${categoriaId}/modulos`, { replace: true });
+      // Deja constancia de que esta persona abrió el módulo. No se espera la
+      // respuesta: es trazabilidad, no debe retrasar la pantalla.
+      else if (found?.id) auditoriaService.registrarVista('Modulo', found.id, found.nombre);
     });
   }, [fetchModule, categoriaId, navigate, base]);
 
@@ -79,8 +83,14 @@ function DetalleModulo() {
   };
 
   const handleSelectReq = (reqId) => {
+    const abriendo = selectedReqId !== reqId;
     setSelectedReqId((prev) => (prev === reqId ? null : reqId));
     setActiveTab('detalle');
+    // Solo al ABRIR: cerrar el detalle no es una lectura nueva.
+    if (abriendo) {
+      const req = reqs.find((r) => r.id === reqId);
+      auditoriaService.registrarVista('Requerimiento', reqId, req?.texto);
+    }
   };
 
   const handleVolver = () => {

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { faIdCard, faBriefcase, faAddressBook } from '@fortawesome/free-solid-svg-icons';
 import Select from '../../../components/Select';
 import { Campo, Seccion, CamposGrid, ErrorAviso, inputClass } from '../../../components/FormKit';
+import { useAuth } from '../../../context/AuthContext';
 
 const ROLES = [
   { value: 'admin', label: 'Administrador' },
@@ -17,6 +18,10 @@ export const USUARIO_FORM_ID = 'form-usuario';
 
 function UsuarioForm({ onSubmit, initialValues, onLoadingChange }) {
   const isEdit = Boolean(initialValues);
+  const { usuario: usuarioActual } = useAuth();
+  // Quitarte a ti mismo el rol de administrador te dejaría sin poder revertirlo.
+  // El backend ya lo rechaza; aquí simplemente no se ofrece.
+  const esMiPropiaCuenta = isEdit && initialValues?.id === usuarioActual?.id;
   const [form, setForm] = useState({
     nombre: initialValues?.nombre ?? '',
     email: initialValues?.email ?? '',
@@ -129,11 +134,17 @@ function UsuarioForm({ onSubmit, initialValues, onLoadingChange }) {
 
       <Seccion icon={faBriefcase} titulo="Rol y estado">
         <CamposGrid>
-          <Campo label="Rol" hint="Define qué puede hacer">
-            <Select value={form.rol} onChange={set('rol')} options={ROLES} />
+          <Campo
+            label="Rol"
+            hint={esMiPropiaCuenta ? 'No puedes cambiar tu propio rol' : 'Define qué puede hacer'}
+          >
+            <Select value={form.rol} onChange={set('rol')} options={ROLES} disabled={esMiPropiaCuenta} />
           </Campo>
-          <Campo label="Estado" hint="Una cuenta inactiva no puede iniciar sesión">
-            <Select value={form.estado} onChange={set('estado')} options={ESTADOS} />
+          <Campo
+            label="Estado"
+            hint={esMiPropiaCuenta ? 'No puedes desactivar tu propia cuenta' : 'Una cuenta inactiva no puede iniciar sesión'}
+          >
+            <Select value={form.estado} onChange={set('estado')} options={ESTADOS} disabled={esMiPropiaCuenta} />
           </Campo>
         </CamposGrid>
       </Seccion>

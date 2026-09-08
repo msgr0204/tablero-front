@@ -9,19 +9,19 @@ import { formatearFecha } from '../../../lib/formatFecha';
 function CompletedRequirementItem({ req, index, onRemove, onToggle, selected, onSelect }) {
   const isTouch = useIsTouchDevice();
   const { getEstado, getPrioridad, getTipo } = useEstadosPrioridades();
-  const { puedeModificarItem, puedeMarcarFinal } = usePermisosTablero();
-  const puedeEditar = puedeModificarItem(req);
+  const { puedeEliminarItem, puedeReabrir } = usePermisosTablero();
+  const puedeEditar = puedeEliminarItem(req);
 
   return (
     <li className={`flex items-center gap-[0.6em] border rounded-[0.6em] px-[0.85em] py-[0.7em] group/req transition-colors duration-200 ${selected ? 'bg-segundo/10 border-segundo/40' : 'bg-primero/20 border-cuarto/10 opacity-60'}`}>
       <button
-        onClick={() => puedeMarcarFinal && onToggle(req.id, false)}
-        disabled={!puedeMarcarFinal}
+        onClick={() => puedeReabrir && onToggle(req.id, false)}
+        disabled={!puedeReabrir}
         aria-label="Marcar como pendiente"
-        title={puedeMarcarFinal ? undefined : 'Solo el dueño puede reabrir'}
+        title={puedeReabrir ? undefined : 'Solo un administrador puede reabrir un requerimiento entregado'}
         className={[
           'w-[1.4em] h-[1.4em] rounded-full border-2 border-segundo bg-segundo/20 flex items-center justify-center flex-shrink-0 transition-all duration-200 focus:outline-none',
-          puedeMarcarFinal ? 'hover:bg-segundo/40' : 'opacity-40 cursor-not-allowed',
+          puedeReabrir ? 'hover:bg-segundo/40' : 'opacity-40 cursor-not-allowed',
         ].join(' ')}
       >
         <FontAwesomeIcon icon={faCheck} className="text-segundo text-[0.6em]" />

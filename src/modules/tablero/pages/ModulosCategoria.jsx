@@ -20,6 +20,7 @@ import useCategory from '../hooks/useCategory';
 import useSearchSort from '../../../hooks/useSearchSort';
 import useDragSensors from '../../../hooks/useDragSensors';
 import useConfirmDelete from '../../../hooks/useConfirmDelete';
+import useDraft from '../../../hooks/useDraft';
 import useTableroBase from '../hooks/useTableroBase';
 import usePermisosTablero from '../hooks/usePermisosTablero';
 import { useBranding } from '../../../context/BrandingContext';
@@ -35,7 +36,10 @@ function ModulosCategoria() {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [editingModule, setEditingModule] = useState(null);
   const [activeModule, setActiveModule] = useState(null);
-  const [tab, setTab] = useState('activos');
+  // La pestaña se recuerda por categoría: al volver de un módulo se espera
+  // seguir donde se estaba, y cada categoría conserva la suya (dejar una en
+  // "entregados" no debe cambiar la vista de las demás).
+  const [tab, setTab] = useDraft(`modulos_tab_${categoriaId}`, 'activos');
   const [guardandoModulo, setGuardandoModulo] = useState(false);
   const { category: categoria, fetchCategory } = useCategory(categoriaId);
   const { modules, loading, fetchModules, createModule, updateModule, removeModule, reorderModules } = useModules(categoriaId);
@@ -46,11 +50,15 @@ function ModulosCategoria() {
   // orden aplican dentro de la pestaña activa.
   const activos = useMemo(() => modules.filter((m) => !esEstadoFinal(m.estado)), [modules, esEstadoFinal]);
   const entregados = useMemo(() => modules.filter((m) => esEstadoFinal(m.estado)), [modules, esEstadoFinal]);
-  const listaTab = tab === 'entregados' ? entregados : activos;
+  // Si la pestaña recordada es "entregados" pero ya no queda ninguno (se
+  // reabrieron o se borraron), se cae a activos: entrar a una pestaña vacía sin
+  // haberla elegido se lee como que la categoría no tiene nada.
+  const tabEfectivo = tab === 'entregados' && entregados.length === 0 && !loading ? 'activos' : tab;
+  const listaTab = tabEfectivo === 'entregados' ? entregados : activos;
 
   const { result: filteredModules, query, setQuery, sort, setSort, filters, setFilter, clearFilters, hasActiveFilters } = useSearchSort(listaTab, { persistKey: 'modulos' });
   // Reordenar solo tiene sentido en los activos y sin filtros que alteren el orden.
-  const isReorderDisabled = tab !== 'activos' || query.trim() !== '' || sort !== 'custom' || hasActiveFilters;
+  const isReorderDisabled = tabEfectivo !== 'activos' || query.trim() !== '' || sort !== 'custom' || hasActiveFilters;
   const sensors = useDragSensors();
   // Crear módulos hereda la autoría de la categoría padre: solo quien la creó
   // (o el dueño del tablero) puede agregarle módulos.
@@ -123,8 +131,8 @@ function ModulosCategoria() {
         {!loading && modules.length > 0 && (
           <>
             <div className="flex items-center gap-[0.4em] mb-[1em] p-[0.25em] rounded-[0.6em] bg-primero-claro border border-cuarto/10 w-fit">
-              <TabModulos label="Activos" total={activos.length} activo={tab === 'activos'} onClick={() => setTab('activos')} />
-              <TabModulos label="Entregados" total={entregados.length} activo={tab === 'entregados'} onClick={() => setTab('entregados')} />
+              <TabModulos label="Activos" total={activos.length} activo={tabEfectivo === 'activos'} onClick={() => setTab('activos')} />
+              <TabModulos label="Entregados" total={entregados.length} activo={tabEfectivo === 'entregados'} onClick={() => setTab('entregados')} />
             </div>
 
             <SearchBar
@@ -132,7 +140,7 @@ function ModulosCategoria() {
               onQuery={setQuery}
               sort={sort}
               onSort={setSort}
-              placeholder={tab === 'entregados' ? 'Buscar en entregados...' : 'Buscar módulo...'}
+              placeholder={tabEfectivo === 'entregados' ? 'Buscar en entregados...' : 'Buscar módulo...'}
               hasExtraFilters={hasActiveFilters}
               onClearExtraFilters={clearFilters}
             >
@@ -156,7 +164,7 @@ function ModulosCategoria() {
               <div className="flex flex-col items-center justify-center py-[5em] gap-[0.5em]">
                 <p className="text-[0.9em] text-cuarto/40 font-roboto">
                   {listaTab.length === 0
-                    ? (tab === 'entregados' ? 'Aún no hay módulos entregados' : 'No hay módulos activos')
+                    ? (tabEfectivo === 'entregados' ? 'Aún no hay módulos entregados' : 'No hay módulos activos')
                     : `Sin resultados para "${query}"`}
                 </p>
               </div>

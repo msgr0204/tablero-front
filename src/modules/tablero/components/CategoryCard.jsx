@@ -23,7 +23,8 @@ function CategoryCard({ category, onUpdate, onRemove, dragHandle, autoEdit, onAu
   const [nombre, setNombre] = useState(category.nombre);
   const [descripcion, setDescripcion] = useState(category.descripcion ?? '');
   const [fechaEntrega, setFechaEntrega] = useState(category.fecha_entrega ?? '');
-  const [diasMaximos, setDiasMaximos] = useState(category.dias_maximos ?? '');
+  // Días máximos desactivado: ver nota en DeliveryFields.
+  // const [diasMaximos, setDiasMaximos] = useState(category.dias_maximos ?? '');
   const [estado, setEstado] = useState(category.estado ?? '');
   const [prioridad, setPrioridad] = useState(category.prioridad ?? '');
   const [visibilidad, setVisibilidad] = useState(category.visibilidad ?? 'publico');
@@ -34,7 +35,7 @@ function CategoryCard({ category, onUpdate, onRemove, dragHandle, autoEdit, onAu
     nombre.trim() !== category.nombre ||
     descripcion.trim() !== (category.descripcion ?? '') ||
     (fechaEntrega || null) !== (category.fecha_entrega ?? null) ||
-    (diasMaximos !== '' ? parseInt(diasMaximos, 10) : null) !== (category.dias_maximos ?? null) ||
+    // (diasMaximos !== '' ? parseInt(diasMaximos, 10) : null) !== (category.dias_maximos ?? null) ||
     (estado || null) !== (category.estado ?? null) ||
     ((estado && esEstadoFinal(estado)) ? null : (prioridad || null)) !== (category.prioridad ?? null) ||
     (puedeMarcarVisibilidad && visibilidad !== (category.visibilidad ?? 'publico'));
@@ -52,7 +53,7 @@ function CategoryCard({ category, onUpdate, onRemove, dragHandle, autoEdit, onAu
     setNombre(category.nombre);
     setDescripcion(category.descripcion ?? '');
     setFechaEntrega(category.fecha_entrega ?? '');
-    setDiasMaximos(category.dias_maximos ?? '');
+    // setDiasMaximos(category.dias_maximos ?? '');
     setEstado(category.estado ?? '');
     setPrioridad(category.prioridad ?? '');
     setVisibilidad(category.visibilidad ?? 'publico');
@@ -91,7 +92,7 @@ function CategoryCard({ category, onUpdate, onRemove, dragHandle, autoEdit, onAu
         nombre: nombre.trim(),
         descripcion: descripcion.trim(),
         fecha_entrega: fechaEntrega || null,
-        dias_maximos: diasMaximos !== '' ? parseInt(diasMaximos, 10) : null,
+        // dias_maximos: diasMaximos !== '' ? parseInt(diasMaximos, 10) : null,
         estado: estado || null,
         prioridad: (estado && esEstadoFinal(estado)) ? null : (prioridad || null),
         ...(puedeMarcarVisibilidad ? { visibilidad } : {}),
@@ -134,7 +135,7 @@ function CategoryCard({ category, onUpdate, onRemove, dragHandle, autoEdit, onAu
             nombre={nombre}
             descripcion={descripcion}
             fechaEntrega={fechaEntrega}
-            diasMaximos={diasMaximos}
+            /* diasMaximos={diasMaximos} */
             estado={estado}
             prioridad={prioridad}
             saving={saving}
@@ -144,7 +145,7 @@ function CategoryCard({ category, onUpdate, onRemove, dragHandle, autoEdit, onAu
             onNombreChange={setNombre}
             onDescripcionChange={setDescripcion}
             onFechaEntregaChange={setFechaEntrega}
-            onDiasMaximosChange={setDiasMaximos}
+            /* onDiasMaximosChange={setDiasMaximos} */
             onEstadoChange={setEstado}
             onPrioridadChange={setPrioridad}
             visibilidad={visibilidad}
@@ -220,7 +221,7 @@ function ViewMode({ category, entregada, puedeEditar, onEdit, onRemove, dragHand
         <InfoRow label="Descripción" value={category.descripcion || '—'} />
         <InfoRow label="Módulos" value={category.totalModulos ?? 0} />
         <DeliveryRow fecha={category.fecha_entrega} entregada={entregada} />
-        <IdRow diasMaximos={category.dias_maximos} />
+        {/* <IdRow diasMaximos={category.dias_maximos} /> */}
       </div>
 
       <div className="mt-auto pt-[0.75em] border-t border-cuarto/10 flex flex-col gap-[0.4em]">
@@ -241,16 +242,16 @@ function ViewMode({ category, entregada, puedeEditar, onEdit, onRemove, dragHand
 }
 
 function EditMode({
-  nombre, descripcion, fechaEntrega, diasMaximos, estado, prioridad, saving,
+  nombre, descripcion, fechaEntrega, /* diasMaximos, */ estado, prioridad, saving,
   estados, prioridades, esEstadoFinal,
-  onNombreChange, onDescripcionChange, onFechaEntregaChange, onDiasMaximosChange,
+  onNombreChange, onDescripcionChange, onFechaEntregaChange, /* onDiasMaximosChange, */
   onEstadoChange, onPrioridadChange,
   visibilidad, onVisibilidadChange, puedeMarcarVisibilidad,
   onSave, onCancel,
 }) {
-  const codigo = diasMaximos !== '' && !isNaN(parseInt(diasMaximos, 10))
-    ? `D${parseInt(diasMaximos, 10)}DM`
-    : null;
+  // const codigo = diasMaximos !== '' && !isNaN(parseInt(diasMaximos, 10))
+  //   ? `D${parseInt(diasMaximos, 10)}DM`
+  //   : null;
 
   const fieldClass = 'w-full h-[2.5em] px-[0.75em] rounded-[0.5em] text-[0.85em] font-roboto bg-primero-claro/60 text-cuarto border border-cuarto/10 hover:border-cuarto/20 focus:border-segundo/60 focus:bg-primero-claro focus:ring-1 focus:ring-segundo/40 outline-none transition-all duration-200';
 
@@ -304,16 +305,16 @@ function EditMode({
         />
       </div>
 
-      <div className="grid grid-cols-[minmax(0,1fr)_auto] gap-[0.6em]">
-        <div className="flex flex-col gap-[0.3em] min-w-0">
-          <label className="text-[0.75em] text-cuarto/50 font-roboto">Fecha de entrega</label>
-          <input
-            type="date"
-            value={fechaEntrega}
-            onChange={(e) => onFechaEntregaChange(e.target.value)}
-            className={fieldClass}
-          />
-        </div>
+      <div className="flex flex-col gap-[0.3em] min-w-0">
+        <label className="text-[0.75em] text-cuarto/50 font-roboto">Fecha de entrega</label>
+        <input
+          type="date"
+          value={fechaEntrega}
+          onChange={(e) => onFechaEntregaChange(e.target.value)}
+          className={fieldClass}
+        />
+      </div>
+      {/* Campo "ID" (días máximos) desactivado — ver nota en DeliveryFields.
         <div className="flex flex-col gap-[0.3em] w-[5.5em] flex-shrink-0">
           <div className="flex items-center justify-between gap-[0.25em]">
             <label className="text-[0.75em] text-cuarto/50 font-roboto">ID</label>
@@ -332,12 +333,13 @@ function EditMode({
             className={`${fieldClass} [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none`}
           />
         </div>
-      </div>
+      */}
 
       <div className="grid grid-cols-2 gap-[0.6em]">
         <div className="flex flex-col gap-[0.3em]">
           <label className="text-[0.75em] text-cuarto/50 font-roboto">Estado</label>
           <Select
+            size="md"
             value={estado}
             onChange={onEstadoChange}
             placeholder="Sin estado"
@@ -352,6 +354,7 @@ function EditMode({
             </span>
           ) : (
             <Select
+              size="md"
               value={prioridad}
               onChange={onPrioridadChange}
               placeholder="Sin prioridad"
@@ -397,20 +400,21 @@ function DeliveryRow({ fecha, entregada }) {
   );
 }
 
-function IdRow({ diasMaximos }) {
-  const codigo = diasMaximos !== null && diasMaximos !== undefined && diasMaximos !== ''
-    ? `D${diasMaximos}DM`
-    : null;
-  return (
-    <div className="flex items-baseline gap-[0.5em]">
-      <span className="text-[0.75em] text-cuarto/40 font-roboto w-[5.5em] flex-shrink-0">ID:</span>
-      {codigo ? (
-        <span className="text-[0.75em] font-mono font-bold tracking-widest text-cuarto/50 select-all">{codigo}</span>
-      ) : (
-        <span className="text-[0.75em] text-cuarto/30 font-roboto italic">—</span>
-      )}
-    </div>
-  );
-}
+// Fila "ID" (código D5DM de días máximos) — desactivada, ver nota en DeliveryFields.
+// function IdRow({ diasMaximos }) {
+//   const codigo = diasMaximos !== null && diasMaximos !== undefined && diasMaximos !== ''
+//     ? `D${diasMaximos}DM`
+//     : null;
+//   return (
+//     <div className="flex items-baseline gap-[0.5em]">
+//       <span className="text-[0.75em] text-cuarto/40 font-roboto w-[5.5em] flex-shrink-0">ID:</span>
+//       {codigo ? (
+//         <span className="text-[0.75em] font-mono font-bold tracking-widest text-cuarto/50 select-all">{codigo}</span>
+//       ) : (
+//         <span className="text-[0.75em] text-cuarto/30 font-roboto italic">—</span>
+//       )}
+//     </div>
+//   );
+// }
 
 export default CategoryCard;

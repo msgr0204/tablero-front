@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus, faTrash, faImage, faXmark, faSpinner } from '@fortawesome/free-solid-svg-icons';
 import useIsTouchDevice from '../../../hooks/useIsTouchDevice';
+import ConfirmDeleteModal from '../../../components/ConfirmDeleteModal';
 
 const MAXIMO_ADJUNTOS = 3;
 
@@ -13,6 +14,8 @@ function RequirementAttachments({ adjuntos = [], onAdd, onRemove }) {
   const [eliminandoId, setEliminandoId] = useState(null);
   const [error, setError] = useState('');
   const [ampliada, setAmpliada] = useState(null);
+  // Una imagen borrada no se recupera desde la interfaz: se confirma antes.
+  const [porEliminar, setPorEliminar] = useState(null);
 
   const handleSeleccionar = async (e) => {
     const archivo = e.target.files?.[0];
@@ -30,10 +33,12 @@ function RequirementAttachments({ adjuntos = [], onAdd, onRemove }) {
     }
   };
 
-  const handleEliminar = async (adjuntoId) => {
+  const handleEliminar = async () => {
+    const adjuntoId = porEliminar;
     setEliminandoId(adjuntoId);
     try {
       await onRemove(adjuntoId);
+      setPorEliminar(null);
     } finally {
       setEliminandoId(null);
     }
@@ -82,7 +87,7 @@ function RequirementAttachments({ adjuntos = [], onAdd, onRemove }) {
               </button>
               <button
                 type="button"
-                onClick={() => handleEliminar(adjunto.id)}
+                onClick={() => setPorEliminar(adjunto.id)}
                 disabled={eliminandoId === adjunto.id}
                 aria-label="Eliminar imagen"
                 className={`${isTouch ? 'opacity-100' : 'opacity-0 group-hover:opacity-100 focus:opacity-100'} absolute top-[0.3em] right-[0.3em] w-[1.75em] h-[1.75em] flex items-center justify-center rounded-[0.4em] bg-primero-oscuro/80 text-cuarto/70 hover:text-quinto-claro transition-all duration-200 focus:outline-none disabled:opacity-50`}
@@ -119,6 +124,14 @@ function RequirementAttachments({ adjuntos = [], onAdd, onRemove }) {
         </div>,
         document.body
       )}
+
+      <ConfirmDeleteModal
+        isOpen={Boolean(porEliminar)}
+        confirming={Boolean(eliminandoId)}
+        label="esta imagen"
+        onCancel={() => setPorEliminar(null)}
+        onConfirm={handleEliminar}
+      />
     </div>
   );
 }

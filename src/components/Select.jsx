@@ -11,18 +11,23 @@ import { faChevronDown, faCheck } from '@fortawesome/free-solid-svg-icons';
  * portal posicionado con Floating UI: así escapan del `overflow-hidden`
  * de la card contenedora en vez de quedar recortadas dentro de ella.
  */
-function Select({ value, onChange, options, placeholder = 'Seleccionar', disabled = false, size = 'md', fitContent = false }) {
+function Select({ value, onChange, options, placeholder = 'Seleccionar', disabled = false, size = 'lg', fitContent = false }) {
   const selected = options.find((opt) => opt.value === value) ?? null;
-  const heightClass = size === 'sm' ? 'h-[2.25em]' : 'h-[2.5em]';
-  const textClass = size === 'sm' ? 'text-[0.8em]' : 'text-[0.85em]';
+  // 'lg' iguala al input del kit de formulario (2.75em de alto y 0.9em de texto).
+  // Como el alto va en em, un tamaño de fuente distinto también cambia la altura
+  // real: por eso ambos valores tienen que ir juntos para que un Select y un
+  // input queden parejos en una misma fila de filtros.
+  const heightClass = { sm: 'h-[2.25em]', md: 'h-[2.5em]', lg: 'h-[2.75em]' }[size] ?? 'h-[2.5em]';
+  const textClass = { sm: 'text-[0.8em]', md: 'text-[0.85em]', lg: 'text-[0.9em]' }[size] ?? 'text-[0.85em]';
+  const radiusClass = size === 'lg' ? 'rounded-[0.6em]' : 'rounded-[0.5em]';
 
   return (
     <Listbox value={value} onChange={onChange} disabled={disabled}>
       <Listbox.Button
         className={[
           fitContent ? 'w-auto min-w-[8em]' : 'w-full',
-          'flex items-center justify-between gap-[0.5em] px-[0.75em] rounded-[0.5em]',
-          heightClass, textClass,
+          'flex items-center justify-between gap-[0.5em] px-[0.85em]',
+          heightClass, textClass, radiusClass,
           'font-roboto bg-primero-claro/60 text-cuarto border border-cuarto/10',
           'hover:border-cuarto/20 transition-all duration-200 outline-none',
           'focus:border-segundo/60 focus:bg-primero-claro focus:ring-1 focus:ring-segundo/40',
