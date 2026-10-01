@@ -17,6 +17,9 @@ function useConfirmDelete(onRemove) {
     }
   };
 
+
+  
+
   return { pendingId, isOpen: pendingId !== null, confirming, requestRemove, cancelRemove, confirmRemove };
 }
 
